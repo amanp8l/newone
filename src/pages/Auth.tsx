@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiMail, FiLock, FiBriefcase } from 'react-icons/fi';
-import { login, signup } from '../services/api';
+import { login } from '../services/api';
 import { useAuthStore } from '../store/authStore';
 import { motion } from 'framer-motion';
 
@@ -32,7 +32,6 @@ export const Auth: React.FC = () => {
         const response = await login(email, password);
         setAuth(true, { email, company: response.userData.company });
       } else {
-        const response = await signup(email, password, company);
         setAuth(true, { email, company });
       }
       navigate('/');

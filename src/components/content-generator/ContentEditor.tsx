@@ -163,8 +163,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
                 onNext={generatePlatformContent}
                 isGenerating={isGenerating}
                 onImageClick={() => setShowImagePicker(true)}
-                onAIClick={() => setShowAIChat(true)}
-              />
+                onAIClick={() => setShowAIChat(true)} selectedImage={null} companyName={''}              />
             ) : (
               <PlatformEditor
                 platform={activeTab}

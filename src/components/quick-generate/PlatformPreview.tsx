@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiHeart, FiMessageCircle, FiRepeat, FiShare2, FiThumbsUp, FiBookmark } from 'react-icons/fi';
+import { FiHeart, FiMessageCircle, FiRepeat, FiShare2, FiThumbsUp } from 'react-icons/fi';
 
 interface PlatformPreviewProps {
   platform: string;

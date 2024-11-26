@@ -6,8 +6,6 @@ import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { Home } from './pages/Home';
 import { AIPlayground } from './pages/AIPlayground';
-import { Analytics } from './pages/Analytics';
-import { Calendar } from './pages/Calendar';
 import { Brands } from './pages/Brands';
 import { Profile } from './pages/Profile';
 import { ComingSoon } from './pages/ComingSoon';

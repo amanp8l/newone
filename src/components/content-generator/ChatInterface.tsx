@@ -28,7 +28,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [input, setInput] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const generateContent = async (prompt: string) => {
+  const generateContent = async () => {
     setIsGenerating(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
 
@@ -54,7 +54,7 @@ Key highlights:
     setMessages(prev => [...prev, userMessage]);
     setInput('');
 
-    const generatedContent = await generateContent(input);
+    const generatedContent = await generateContent();
     
     const aiMessage = { 
       type: 'ai' as const, 

@@ -6,7 +6,6 @@ import { ContentEditor } from './ContentEditor';
 import { StepIndicator } from './StepIndicator';
 import { FormData } from './types';
 import { TopicSelector } from './TopicSelector';
-import { useNavigate } from 'react-router-dom';
 
 const steps = ['Campaign Details', 'Topic', 'Content Settings'];
 
@@ -15,7 +14,6 @@ interface ContentGeneratorProps {
 }
 
 const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onBack }) => {
-  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [showValidation, setShowValidation] = useState(false);
   const [showEditor, setShowEditor] = useState(false);

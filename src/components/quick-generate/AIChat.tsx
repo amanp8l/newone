@@ -15,7 +15,6 @@ interface AIChatProps {
 }
 
 export const AIChat: React.FC<AIChatProps> = ({
-  onClose,
   activePlatform,
   currentContent,
   onContentUpdate

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiArrowLeft, FiBold, FiItalic, FiList, FiImage, FiZap, FiSave, FiSend, FiEye } from 'react-icons/fi';
+import { FiArrowLeft, FiBold, FiItalic, FiList, FiImage, FiSave, FiSend, FiEye } from 'react-icons/fi';
 import { PlatformTabs } from './PlatformTabs';
 import { ImagePicker } from '../content-generator/ImagePicker';
 import { AIAssistant } from '../content-generator/AIAssistant';
@@ -38,7 +38,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({
     }
   };
 
-  const generateContent = async (type: 'new' | 'rephrase' | 'professional' | 'casual') => {
+  const generateContent = async () => {
     setIsGenerating(true);
     setAIMessage("Creating engaging content for your audience...");
     
@@ -130,8 +130,7 @@ Key highlights:
               <PlatformTabs
                 platforms={selectedPlatforms}
                 activePlatform={activePlatform}
-                onPlatformChange={setActivePlatform}
-              />
+                onPlatformChange={setActivePlatform} isEnabled={false}              />
 
               <div className="flex items-center space-x-2 mb-4 pb-4 border-b border-indigo-100">
                 <button

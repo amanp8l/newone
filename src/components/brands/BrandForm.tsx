@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState} from 'react';
 import { FiArrowLeft } from 'react-icons/fi';
 import { Brand } from './BrandManager';
 import { useAuthStore } from '../../store/authStore';
@@ -38,7 +38,7 @@ export const BrandForm: React.FC<BrandFormProps> = ({
     const requiredFields = ['name', 'website', 'industry', 'tagline', 'targetAudience', 'toneOfVoice', 'description'];
 
     requiredFields.forEach(field => {
-      if (!formData[field as keyof typeof formData]?.trim()) {
+      if (!formData[field as keyof typeof formData]) {
         errors[field] = `${field.charAt(0).toUpperCase() + field.slice(1)} is required`;
       }
     });

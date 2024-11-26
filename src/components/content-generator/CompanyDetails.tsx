@@ -17,8 +17,7 @@ interface CompanyDetailsProps {
 export const CompanyDetails: React.FC<CompanyDetailsProps> = ({
   formData,
   onInputChange,
-  showValidation,
-  onSelectBrand
+  showValidation
 }) => {
   const navigate = useNavigate();
   const [brands, setBrands] = useState<any[]>([]);
