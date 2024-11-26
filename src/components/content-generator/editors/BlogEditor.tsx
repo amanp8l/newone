@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { EditorToolbar } from './EditorToolbar';
 import { BlogPreview } from './BlogPreview';
 
