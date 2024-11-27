@@ -57,7 +57,7 @@ export const Dashboard: React.FC = () => {
   const features = [
     {
       title: 'Create From Images',
-      description: 'Upload images and let our AI analyze them to generate engaging social media content that resonates with your audience.',
+      description: 'Upload images and let our AI analyze them to generate engaging social media content.',
       image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=800&q=80',
       difficulty: 'Beginner',
       estimatedTime: '3-5 min',
