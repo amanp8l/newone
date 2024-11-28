@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { BrandSelector } from './campaign/BrandSelector';
 import { ObjectiveField } from './campaign/ObjectiveField';
 import { AudienceField } from './campaign/AudienceField';
-import { generateCampaignObjective, generateTargetAudience } from './api';
 
 interface CampaignDetailsProps {
   formData: {
@@ -10,6 +9,7 @@ interface CampaignDetailsProps {
     products: string;
     objective: string;
     targetAudience: string;
+    brandName?: string;
   };
   onInputChange: (field: string, value: any) => void;
   showValidation: boolean;
@@ -23,72 +23,41 @@ export const CampaignDetails: React.FC<CampaignDetailsProps> = ({
   const [isGeneratingObjective, setIsGeneratingObjective] = useState(false);
   const [isGeneratingAudience, setIsGeneratingAudience] = useState(false);
 
-  const handleGenerateObjective = async () => {
-    if (!formData.companyName) {
-      alert("Please select a brand first");
-      return;
-    }
-
-    setIsGeneratingObjective(true);
-    try {
-      const objective = await generateCampaignObjective("default", formData.companyName);
-      onInputChange('objective', objective);
-    } catch (error) {
-      console.error('Error generating objective:', error);
-      alert('Failed to generate campaign objective');
-    } finally {
-      setIsGeneratingObjective(false);
-    }
-  };
-
-  const handleGenerateAudience = async () => {
-    if (!formData.companyName) {
-      alert("Please select a brand first");
-      return;
-    }
-    if (!formData.objective) {
-      alert("Please add campaign objective first");
-      return;
-    }
-
-    setIsGeneratingAudience(true);
-    try {
-      const audience = await generateTargetAudience(
-        "default",
-        formData.companyName,
-        formData.objective
-      );
-      onInputChange('targetAudience', audience);
-    } catch (error) {
-      console.error('Error generating audience:', error);
-      alert('Failed to generate target audience');
-    } finally {
-      setIsGeneratingAudience(false);
-    }
+  const handleBrandSelect = (brand: any) => {
+    onInputChange('companyName', brand.name);
+    onInputChange('products', brand.description);
+    onInputChange('brandName', brand.name); // Add this line to store brand name
   };
 
   return (
     <div className="space-y-6">
       <BrandSelector
         formData={formData}
-        onInputChange={onInputChange}
+        onInputChange={handleBrandSelect}
         showValidation={showValidation}
       />
 
       <ObjectiveField
-        formData={formData}
+        formData={{
+          objective: formData.objective,
+          brandName: formData.brandName || ''
+        }}
         onInputChange={onInputChange}
         showValidation={showValidation}
         isGenerating={isGeneratingObjective}
-        onGenerate={handleGenerateObjective}
+        onGenerate={() => setIsGeneratingObjective(false)}
       />
 
       <AudienceField
-        formData={formData}
+        formData={{
+          brandName: formData.brandName || '',
+          objective: formData.objective,
+          targetAudience: formData.targetAudience
+        }}
         onInputChange={onInputChange}
         showValidation={showValidation}
         isGenerating={isGeneratingAudience}
-        onGenerate={handleGenerateAudience}
+        onGenerate={() => setIsGeneratingAudience(false)}
       />
     </div>
   );

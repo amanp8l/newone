@@ -9,6 +9,7 @@ import { AIPlayground } from './pages/AIPlayground';
 import { Brands } from './pages/Brands';
 import { Profile } from './pages/Profile';
 import { ComingSoon } from './pages/ComingSoon';
+import { Pricing } from './pages/Pricing';
 
 const PrivateRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
@@ -33,6 +34,7 @@ export const App: React.FC = () => {
               <Route path="/analytics" element={<PrivateRoute element={<ComingSoon title="Analytics" />} />} />
               <Route path="/calendar" element={<PrivateRoute element={<ComingSoon title="Calendar" />} />} />
               <Route path="/profile" element={<PrivateRoute element={<Profile />} />} />
+              <Route path="/pricing" element={<PrivateRoute element={<Pricing />} />} />
             </Routes>
           </div>
         </div>

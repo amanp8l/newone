@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FiZap } from 'react-icons/fi';
+import { useAuthStore } from '../../../store/authStore';
+import axios from 'axios';
 
 interface ObjectiveFieldProps {
   formData: {
-    companyName: string;
     objective: string;
+    brandName: string;
   };
   onInputChange: (field: string, value: any) => void;
   showValidation: boolean;
@@ -16,19 +18,49 @@ export const ObjectiveField: React.FC<ObjectiveFieldProps> = ({
   formData,
   onInputChange,
   showValidation,
-  isGenerating,
-  onGenerate,
 }) => {
+  const { user } = useAuthStore();
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleGenerate = async () => {
+    if (!formData.brandName) {
+      setError('Please select a brand first');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/campaign', {
+        company: user?.company || '',
+        product: formData.brandName
+      });
+
+      if (response.data) {
+        onInputChange('objective', response.data);
+        setError(null);
+      }
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Failed to generate objective. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
         <label className="text-sm font-medium text-indigo-900">Campaign Objective *</label>
         <button
-          onClick={onGenerate}
-          disabled={isGenerating}
+          onClick={handleGenerate}
+          disabled={isLoading}
           className="p-2 rounded-lg bg-gradient-to-br from-indigo-100 to-pink-100 text-indigo-600 hover:from-indigo-200 hover:to-pink-200 transition-all group relative disabled:opacity-50"
         >
-          <FiZap className={`w-4 h-4 ${isGenerating ? 'animate-pulse' : ''}`} />
+          <FiZap className={`w-4 h-4 ${isLoading ? 'animate-pulse' : ''}`} />
           <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-indigo-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
             Generate using AI
           </span>
@@ -44,11 +76,11 @@ export const ObjectiveField: React.FC<ObjectiveFieldProps> = ({
               ? 'border-pink-300 focus:ring-pink-500'
               : 'border-indigo-200 focus:ring-indigo-500'
           } px-4 py-2 focus:outline-none focus:ring-2`}
-          placeholder="What is the primary objective of your campaign?"
+          placeholder={`What is the primary objective for ${user?.company || 'your company'}'s campaign?`}
           rows={4}
-          disabled={isGenerating}
+          disabled={isLoading}
         />
-        {isGenerating && (
+        {isLoading && (
           <div className="absolute inset-0 bg-white/90 backdrop-blur-sm rounded-lg flex items-center justify-center">
             <div className="flex flex-col items-center space-y-4">
               <div className="relative">
@@ -65,6 +97,10 @@ export const ObjectiveField: React.FC<ObjectiveFieldProps> = ({
           </div>
         )}
       </div>
+
+      {error && (
+        <p className="mt-2 text-sm text-pink-500">{error}</p>
+      )}
 
       {showValidation && !formData.objective.trim() && (
         <p className="mt-1 text-sm text-pink-500">Campaign objective is required</p>

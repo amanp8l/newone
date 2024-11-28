@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiSend, FiBook, FiArrowRight } from 'react-icons/fi';
+import { FiSend, FiBook, FiArrowRight, FiArrowLeft } from 'react-icons/fi';
 
 interface Message {
   type: 'user' | 'ai';
@@ -231,24 +231,38 @@ Would you like more specific guidance about any particular feature?`;
             </div>
           </div>
         ) : (
-          <div className="space-y-4">
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+          <>
+            {messages.length > 0 && (
+              <button
+                onClick={() => {
+                  setMessages([]);
+                  setShowPrompts(true);
+                }}
+                className="flex items-center space-x-2 text-indigo-600 hover:text-indigo-700 mb-4"
               >
+                <FiArrowLeft className="w-4 h-4" />
+                <span>Back to Home</span>
+              </button>
+            )}
+            <div className="space-y-4">
+              {messages.map((message, index) => (
                 <div
-                  className={`max-w-[80%] rounded-xl p-4 ${
-                    message.type === 'user'
-                      ? 'bg-gradient-to-r from-indigo-500 to-pink-500 text-white'
-                      : 'bg-gradient-to-r from-indigo-50 to-pink-50 text-indigo-900'
-                  }`}
+                  key={index}
+                  className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <p className="whitespace-pre-wrap">{message.content}</p>
+                  <div
+                    className={`max-w-[80%] rounded-xl p-4 ${
+                      message.type === 'user'
+                        ? 'bg-gradient-to-r from-indigo-500 to-pink-500 text-white'
+                        : 'bg-gradient-to-r from-indigo-50 to-pink-50 text-indigo-900'
+                    }`}
+                  >
+                    <p className="whitespace-pre-wrap">{message.content}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
 
@@ -267,6 +281,7 @@ Would you like more specific guidance about any particular feature?`;
               <button
                 onClick={() => setShowPromptLibrary(!showPromptLibrary)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-indigo-50 rounded-lg transition-colors text-indigo-600"
+                title="Select Prompt"
               >
                 <FiBook className="w-5 h-5" />
               </button>

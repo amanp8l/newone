@@ -8,7 +8,7 @@ export const Sidebar: React.FC = () => {
 
   const menuItems = [
     { icon: <FiHome />, text: "Home", path: "/" },
-    { icon: <FiZap />, text: "AI Playground", path: "/ai-playground" },
+    { icon: <FiZap />, text: "AI Agents", path: "/ai-playground" },
     { icon: <FiBriefcase />, text: "Brands", path: "/brands" },
     { icon: <FiPieChart />, text: "Analytics", path: "/analytics" },
     { icon: <FiCalendar />, text: "Calendar", path: "/calendar" }
@@ -45,7 +45,10 @@ export const Sidebar: React.FC = () => {
       </nav>
 
       <div className="p-6">
-        <button className="w-full bg-gradient-to-r from-indigo-500 to-pink-500 text-white py-2.5 font-medium hover:from-indigo-600 hover:to-pink-600 transition-colors shadow-lg shadow-indigo-500/25 rounded-xl">
+        <button 
+          onClick={() => navigate('/pricing')}
+          className="w-full bg-gradient-to-r from-indigo-500 to-pink-500 text-white py-2.5 font-medium hover:from-indigo-600 hover:to-pink-600 transition-colors shadow-lg shadow-indigo-500/25 rounded-xl"
+        >
           Upgrade Pro
         </button>
       </div>

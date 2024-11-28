@@ -14,7 +14,7 @@ export const Header: React.FC = () => {
       case '/':
         return 'Welcome to SocialHub';
       case '/ai-playground':
-        return 'AI Playground';
+        return 'AI Agents';
       case '/brands':
         return 'Brand Management';
       case '/analytics':

@@ -1,10 +1,11 @@
 import React, { useState, useRef } from 'react';
-import { FiUser, FiMail, FiBriefcase, FiPhone, FiMapPin, FiGlobe, FiUpload, FiSave } from 'react-icons/fi';
+import { FiUser, FiMail, FiBriefcase, FiPhone, FiMapPin, FiGlobe, FiUpload, FiSave, FiCheck } from 'react-icons/fi';
 import { useAuthStore } from '../store/authStore';
 
 export const Profile: React.FC = () => {
   const { user, updateUser } = useAuthStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
   
   const [formData, setFormData] = useState({
     email: user?.email || '',
@@ -34,11 +35,22 @@ export const Profile: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     updateUser(formData);
+    setShowSuccess(true);
+    setTimeout(() => setShowSuccess(false), 3000);
   };
 
   return (
     <div className="p-8">
       <div className="max-w-4xl mx-auto">
+        {showSuccess && (
+          <div className="fixed top-6 right-6 bg-white rounded-xl shadow-lg p-4 animate-fadeIn z-50 flex items-center space-x-3 border border-indigo-100">
+            <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-pink-500 rounded-full flex items-center justify-center">
+              <FiCheck className="w-5 h-5 text-white" />
+            </div>
+            <p className="text-indigo-900">Changes saved successfully!</p>
+          </div>
+        )}
+
         <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-sm">
           <div className="p-6 border-b border-indigo-100">
             <h2 className="text-xl font-semibold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent">

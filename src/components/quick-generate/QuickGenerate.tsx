@@ -32,7 +32,7 @@ export const QuickGenerate: React.FC = () => {
       setTimeout(() => {
         setIsGenerating(false);
         setStep(3);
-      }, 1500); // Add a slight delay for smoother transition
+      }, 1500);
     } catch (error) {
       console.error('Error generating content:', error);
       setIsGenerating(false);
@@ -51,28 +51,16 @@ export const QuickGenerate: React.FC = () => {
 
   if (step === 2) {
     return (
-      <div className="h-screen bg-gradient-to-br from-indigo-50 to-pink-50 flex flex-col">
-        <div className="p-6">
-          <div className="max-w-3xl mx-auto">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent mb-2">
-              Draft Content
-            </h1>
-            <p className="text-indigo-600 mb-8">
-              Write your content draft that will be optimized for each platform
-            </p>
-
-            <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-sm">
-              <DraftEditor
-                content={draftContent}
-                onChange={setDraftContent}
-                onNext={handleDraftNext}
-                isValid={draftContent.trim().length > 0}
-                isLoading={isGenerating}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
+      <DraftEditor
+        content={draftContent}
+        onChange={setDraftContent}
+        onNext={handleDraftNext}
+        onBack={() => setStep(1)}
+        isValid={draftContent.trim().length > 0}
+        isLoading={isGenerating}
+        selectedPlatforms={selectedPlatforms} selectedImage={null} onImageClick={function (): void {
+          throw new Error('Function not implemented.');
+        } }      />
     );
   }
 

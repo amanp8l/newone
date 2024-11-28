@@ -7,6 +7,7 @@ export interface FormData {
   contentTone: string;
   selectedPlatforms: string[];
   topic: string;
+  brandName?: string;
   resources?: Array<{
     type: 'url' | 'file' | 'image';
     content: string;

@@ -24,7 +24,7 @@ export const Home: React.FC = () => {
           className="px-6 py-2.5 bg-white/80 border-2 border-transparent bg-gradient-to-r from-indigo-500/20 to-pink-500/20 hover:from-indigo-500/30 hover:to-pink-500/30 text-indigo-600 rounded-xl transition-all duration-300 flex items-center space-x-2 relative before:absolute before:inset-0 before:p-[2px] before:bg-gradient-to-r before:from-indigo-500 before:to-pink-500 before:rounded-xl before:-z-10 before:content-['']"
         >
           <FiZap className="w-5 h-5" />
-          <span>Quick Generate</span>
+          <span>Quick Post</span>
         </button>
         <button
           onClick={() => setShowContentGenerator(true)}

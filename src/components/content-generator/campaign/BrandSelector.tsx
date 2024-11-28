@@ -8,8 +8,9 @@ interface BrandSelectorProps {
   formData: {
     companyName: string;
     products: string;
+    brandName?: string;
   };
-  onInputChange: (field: string, value: any) => void;
+  onInputChange: (brand: any) => void;
   showValidation: boolean;
 }
 
@@ -64,8 +65,11 @@ export const BrandSelector: React.FC<BrandSelectorProps> = ({
       return;
     }
 
-    onInputChange('companyName', brand.product_name);
-    onInputChange('products', brand.description);
+    onInputChange({
+      name: brand.product_name,
+      description: brand.description,
+      industry: brand.industry
+    });
     setIsOpen(false);
   };
 
@@ -76,7 +80,7 @@ export const BrandSelector: React.FC<BrandSelectorProps> = ({
         <button
           onClick={() => setIsOpen(!isOpen)}
           className={`w-full flex items-center justify-between rounded-lg border ${
-            showValidation && !formData.companyName
+            showValidation && !formData.brandName
               ? 'border-pink-300 focus:ring-pink-500'
               : 'border-indigo-200 focus:ring-indigo-500'
           } px-4 py-3 focus:outline-none focus:ring-2 bg-white text-left transition-all hover:bg-indigo-50/50`}
@@ -85,8 +89,8 @@ export const BrandSelector: React.FC<BrandSelectorProps> = ({
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-100 to-pink-100 flex items-center justify-center">
               <FiBriefcase className="w-4 h-4 text-indigo-600" />
             </div>
-            <span className={formData.companyName ? 'text-indigo-900' : 'text-indigo-400'}>
-              {formData.companyName || 'Select a brand'}
+            <span className={formData.brandName ? 'text-indigo-900' : 'text-indigo-400'}>
+              {formData.brandName || 'Select a brand'}
             </span>
           </div>
           <FiChevronDown className={`w-5 h-5 text-indigo-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
@@ -139,7 +143,7 @@ export const BrandSelector: React.FC<BrandSelectorProps> = ({
           </div>
         )}
       </div>
-      {showValidation && !formData.companyName && (
+      {showValidation && !formData.brandName && (
         <p className="mt-1 text-sm text-pink-500">Please select a brand</p>
       )}
     </div>
