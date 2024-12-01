@@ -1,5 +1,6 @@
-import React, { useRef, useEffect } from 'react';
-import { FiArrowRight, FiBold, FiItalic, FiImage, FiSend, FiArrowLeft } from 'react-icons/fi';
+import React, { useState, useRef } from 'react';
+import { FiArrowRight, FiBold, FiItalic, FiImage, FiSend, FiArrowLeft, FiX } from 'react-icons/fi';
+import { ImagePicker } from './ImagePicker';
 
 interface DraftEditorProps {
   content: string;
@@ -20,39 +21,71 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
   onBack,
   isValid,
   isLoading = false,
-  selectedPlatforms,
-  selectedImage,
-  onImageClick
-}) => {
-  const editorRef = useRef<HTMLTextAreaElement>(null);
+  selectedPlatforms}) => {
+  const [showImagePicker, setShowImagePicker] = useState(false);
+  const [currentImage, setCurrentImage] = useState<string | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  useEffect(() => {
-    if (editorRef.current) {
-      editorRef.current.focus();
+  const handleBoldClick = () => {
+    if (!textareaRef.current) return;
+    
+    const start = textareaRef.current.selectionStart;
+    const end = textareaRef.current.selectionEnd;
+    const selectedText = content.substring(start, end);
+    
+    if (selectedText) {
+      const newContent = 
+        content.substring(0, start) +
+        `<strong>${selectedText}</strong>` +
+        content.substring(end);
+      onChange(newContent);
     }
-  }, []);
-
-  const handleTextFormat = (command: string) => {
-    document.execCommand(command, false);
   };
 
-  const getPlatformIcon = (platform: string) => {
-    switch (platform.toLowerCase()) {
-      case 'twitter':
-        return 'X';
-      case 'facebook':
-        return 'fb';
-      case 'linkedin':
-        return 'in';
-      default:
-        return platform.charAt(0);
+  const handleItalicClick = () => {
+    if (!textareaRef.current) return;
+    
+    const start = textareaRef.current.selectionStart;
+    const end = textareaRef.current.selectionEnd;
+    const selectedText = content.substring(start, end);
+    
+    if (selectedText) {
+      const newContent = 
+        content.substring(0, start) +
+        `<em>${selectedText}</em>` +
+        content.substring(end);
+      onChange(newContent);
     }
+  };
+
+  const handleImageSelect = (url: string) => {
+    setCurrentImage(url);
+    setShowImagePicker(false);
+  };
+
+  const removeImage = () => {
+    setCurrentImage(null);
+  };
+
+  // Platform icons/images mapping
+  const platformImages = {
+    twitter: "https://cdn-icons-png.flaticon.com/512/733/733579.png",
+    facebook: "https://cdn-icons-png.flaticon.com/512/733/733547.png",
+    linkedin: "https://cdn-icons-png.flaticon.com/512/3536/3536505.png"
+  };
+
+  const handleNext = () => {
+    if (currentImage) {
+      const contentWithImage = `${content}\n\n[IMAGE:${currentImage}]`;
+      onChange(contentWithImage);
+    }
+    onNext();
   };
 
   return (
     <div className="h-screen bg-gradient-to-br from-indigo-50 to-pink-50 flex flex-col">
       <div className="p-6">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <button
               onClick={onBack}
@@ -65,9 +98,13 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
               {selectedPlatforms.map((platform) => (
                 <div
                   key={platform}
-                  className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-100 to-pink-100 flex items-center justify-center text-indigo-600 font-medium"
+                  className="w-8 h-8 rounded-lg overflow-hidden"
                 >
-                  {getPlatformIcon(platform)}
+                  <img 
+                    src={platformImages[platform as keyof typeof platformImages]} 
+                    alt={platform}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
               ))}
             </div>
@@ -76,7 +113,7 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
           <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-sm">
             <div className="flex items-center space-x-4 p-4 border-b border-indigo-100">
               <button
-                onClick={() => handleTextFormat('bold')}
+                onClick={handleBoldClick}
                 className="p-2 hover:bg-indigo-50 rounded-lg transition-colors group relative"
               >
                 <FiBold className="w-5 h-5 text-indigo-600" />
@@ -85,7 +122,7 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
                 </span>
               </button>
               <button
-                onClick={() => handleTextFormat('italic')}
+                onClick={handleItalicClick}
                 className="p-2 hover:bg-indigo-50 rounded-lg transition-colors group relative"
               >
                 <FiItalic className="w-5 h-5 text-indigo-600" />
@@ -94,7 +131,7 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
                 </span>
               </button>
               <button
-                onClick={onImageClick}
+                onClick={() => setShowImagePicker(true)}
                 className="p-2 hover:bg-indigo-50 rounded-lg transition-colors group relative"
               >
                 <FiImage className="w-5 h-5 text-indigo-600" />
@@ -106,27 +143,27 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
 
             <div className="p-6">
               <textarea
-                ref={editorRef}
+                ref={textareaRef}
                 value={content}
                 onChange={(e) => onChange(e.target.value)}
+                className="w-full min-h-[500px] p-6 rounded-xl border-2 border-indigo-100 focus:border-indigo-300 focus:ring-2 focus:ring-indigo-500/20 transition-all outline-none font-sans text-base resize-none"
                 placeholder="Write your content here..."
-                className="w-full min-h-[400px] p-6 rounded-xl border-2 border-indigo-100 focus:border-indigo-300 focus:ring-2 focus:ring-indigo-500/20 transition-all outline-none resize-none font-sans text-base"
               />
             </div>
 
-            {selectedImage && (
+            {currentImage && (
               <div className="px-6 pb-6">
                 <div className="relative">
                   <img 
-                    src={selectedImage} 
+                    src={currentImage} 
                     alt="Selected" 
                     className="w-full h-48 object-cover rounded-xl"
                   />
                   <button
-                    onClick={() => onChange('')}
-                    className="absolute top-2 right-2 px-3 py-1 bg-pink-500 text-white rounded-lg text-sm hover:bg-pink-600 transition-colors"
+                    onClick={removeImage}
+                    className="absolute top-2 right-2 p-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors"
                   >
-                    Remove
+                    <FiX className="w-4 h-4" />
                   </button>
                 </div>
               </div>
@@ -134,7 +171,7 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
 
             <div className="p-6 border-t border-indigo-100 flex space-x-4">
               <button
-                onClick={onNext}
+                onClick={handleNext}
                 disabled={!isValid || isLoading}
                 className="flex-1 flex items-center justify-center space-x-3 px-8 py-4 bg-gradient-to-r from-indigo-500 to-pink-500 text-white rounded-xl hover:from-indigo-600 hover:to-pink-600 transition-all transform hover:-translate-y-1 disabled:opacity-50 disabled:hover:translate-y-0 font-medium text-lg shadow-xl shadow-indigo-500/25"
               >
@@ -152,6 +189,13 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
           </div>
         </div>
       </div>
+
+      {showImagePicker && (
+        <ImagePicker
+          onClose={() => setShowImagePicker(false)}
+          onImageSelect={handleImageSelect}
+        />
+      )}
 
       {isLoading && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">

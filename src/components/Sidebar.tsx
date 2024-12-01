@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FiHome, FiZap, FiPieChart, FiCalendar, FiBriefcase } from 'react-icons/fi';
+import { FiHome, FiZap, FiPieChart, FiCalendar, FiBriefcase, FiHelpCircle } from 'react-icons/fi';
 
 export const Sidebar: React.FC = () => {
   const navigate = useNavigate();
@@ -8,10 +8,11 @@ export const Sidebar: React.FC = () => {
 
   const menuItems = [
     { icon: <FiHome />, text: "Home", path: "/" },
-    { icon: <FiZap />, text: "AI Agents", path: "/ai-playground" },
     { icon: <FiBriefcase />, text: "Brands", path: "/brands" },
+    { icon: <FiZap />, text: "AI Agents", path: "/ai-playground" },
     { icon: <FiPieChart />, text: "Analytics", path: "/analytics" },
-    { icon: <FiCalendar />, text: "Calendar", path: "/calendar" }
+    { icon: <FiCalendar />, text: "Calendar", path: "/calendar" },
+    { icon: <FiHelpCircle />, text: "Help", path: "/help" }
   ];
 
   return (

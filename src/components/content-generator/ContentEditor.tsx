@@ -5,6 +5,8 @@ import { PlatformEditor } from './editors/PlatformEditor';
 import { ImagePicker } from '../quick-generate/ImagePicker';
 import { AIAssistant } from './editors/AIAssistant';
 import { PreviewScreen } from '../quick-generate/PreviewScreen';
+import { formatBlogContent } from '../../utils/contentFormatter';
+import { formatPlatformContent } from '../../utils/platformFormatter';
 
 interface ContentEditorProps {
   formData: {
@@ -55,7 +57,8 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
         limit: 6000
       });
 
-      setBlogContent(response.data);
+      const formattedContent = formatBlogContent(response.data);
+      setBlogContent(formattedContent);
     } catch (error) {
       console.error('Error generating blog content:', error);
     } finally {
@@ -73,9 +76,9 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
       ]);
 
       setPlatformContent({
-        linkedin: linkedinRes.data,
-        twitter: twitterRes.data,
-        facebook: facebookRes.data
+        linkedin: formatPlatformContent(linkedinRes.data),
+        twitter: formatPlatformContent(twitterRes.data),
+        facebook: formatPlatformContent(facebookRes.data)
       });
       setPlatformsEnabled(true);
       setActiveTab('linkedin');
@@ -163,7 +166,10 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
                 onNext={generatePlatformContent}
                 isGenerating={isGenerating}
                 onImageClick={() => setShowImagePicker(true)}
-                onAIClick={() => setShowAIChat(true)} selectedImage={null} companyName={''}              />
+                onAIClick={() => setShowAIChat(true)}
+                selectedImage={selectedImage}
+                companyName={formData.companyName}
+              />
             ) : (
               <PlatformEditor
                 platform={activeTab}

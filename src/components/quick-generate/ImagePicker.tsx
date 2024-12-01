@@ -34,7 +34,8 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({ onClose, onImageSelect
     setError(null);
     try {
       const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/get_images', {
-        query: searchQuery
+        query: searchQuery,
+        number_of_pics: 5
       });
       
       if (response.data?.result) {

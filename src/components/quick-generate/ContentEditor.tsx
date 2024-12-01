@@ -6,6 +6,7 @@ import { ImagePicker } from './ImagePicker';
 import { PreviewScreen } from './PreviewScreen';
 import { GeneratedContent } from './types';
 import { useAuthStore } from '../../store/authStore';
+import { formatPlatformContent } from '../../utils/platformFormatter';
 
 interface ContentEditorProps {
   selectedPlatforms: string[];
@@ -23,7 +24,14 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
   const [showAIChat, setShowAIChat] = useState(false);
   const [showImagePicker, setShowImagePicker] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const [platformContent, setPlatformContent] = useState<GeneratedContent>(generatedContent);
+  const [platformContent, setPlatformContent] = useState<GeneratedContent>(
+    Object.fromEntries(
+      Object.entries(generatedContent).map(([platform, content]) => [
+        platform,
+        formatPlatformContent(content)
+      ])
+    )
+  );
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const handleTextEdit = (command: string) => {
@@ -101,9 +109,6 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
                 title="Bold"
               >
                 <FiBold className="w-5 h-5 text-indigo-600" />
-                <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-indigo-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                  Bold
-                </span>
               </button>
               <button
                 onClick={() => handleTextEdit('italic')}
@@ -111,9 +116,6 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
                 title="Italic"
               >
                 <FiItalic className="w-5 h-5 text-indigo-600" />
-                <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-indigo-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                  Italic
-                </span>
               </button>
               <button
                 onClick={() => setShowImagePicker(true)}
@@ -121,19 +123,13 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
                 title="Add Image"
               >
                 <FiImage className="w-5 h-5 text-indigo-600" />
-                <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-indigo-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                  Add Image
-                </span>
               </button>
               <button
                 onClick={() => setShowAIChat(!showAIChat)}
-                className="p-2 hover:bg-indigo-50 rounded-lg transition-colors group relative"
+                className="p-2 hover:bg-indigo-50 rounded-lg transition-colors group relative ml-auto"
                 title="AI Assistant"
               >
                 <FiZap className="w-5 h-5 text-indigo-600" />
-                <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-indigo-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                  Generate using AI
-                </span>
               </button>
             </div>
 
