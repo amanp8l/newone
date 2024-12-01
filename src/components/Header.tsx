@@ -27,6 +27,10 @@ export const Header: React.FC = () => {
         return 'Settings';
       case '/profile':
         return 'My Profile';
+      case '/calendar':
+        return 'Post Calendar';
+      case '/help':
+        return 'Ask for Help';  
       default:
         return 'SocialHub';
     }
