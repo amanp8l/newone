@@ -27,12 +27,14 @@ export const AudienceField: React.FC<AudienceFieldProps> = ({
 
   useEffect(() => {
     if (textareaRef.current) {
-      // Reset height to auto to get the correct scrollHeight
       textareaRef.current.style.height = 'auto';
-      // Set the height to scrollHeight to fit the content
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
   }, [formData.targetAudience]);
+
+  const cleanGeneratedText = (text: string): string => {
+    return text.replace(/\*\*/g, '');
+  };
 
   const handleGenerate = async () => {
     if (!formData.brandName) {
@@ -54,7 +56,8 @@ export const AudienceField: React.FC<AudienceFieldProps> = ({
       });
 
       if (response.data) {
-        onInputChange('targetAudience', response.data);
+        const cleanedText = cleanGeneratedText(response.data);
+        onInputChange('targetAudience', cleanedText);
         setError(null);
       }
     } catch (err) {

@@ -123,49 +123,49 @@ export const Dashboard: React.FC = () => {
 
   const features = [
     {
-      title: 'Create From Images',
-      description: 'Upload images and let our AI analyze them to generate engaging social media content.',
-      image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=800&q=80',
+      title: 'Create from Text',
+      description: 'Transform your PDF and CSV documents into engaging social media content with AI-powered analysis.',
+      image: 'https://images.unsplash.com/photo-1456324504439-367cee3b3c32?auto=format&fit=crop&w=800&q=80',
       difficulty: 'Beginner',
       estimatedTime: '3-5 min',
       rating: 4.9
     },
     {
-      title: 'Ask AI to Write',
-      description: 'Get AI-powered content creation tailored to your brand voice and marketing objectives.',
-      image: 'https://images.unsplash.com/photo-1535378917042-10a22c95931a?auto=format&fit=crop&w=800&q=80',
+      title: 'Create from Audio',
+      description: 'Convert podcasts, interviews, and audio clips into compelling social media posts.',
+      image: 'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?auto=format&fit=crop&w=800&q=80',
       difficulty: 'Intermediate',
       estimatedTime: '5-10 min',
       rating: 4.8
     },
     {
-      title: 'Create From News',
-      description: 'Stay relevant with AI-generated posts based on the latest industry news and trends.',
-      image: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800&q=80',
+      title: 'Create from Video',
+      description: 'Turn YouTube videos and other video content into engaging social media updates.',
+      image: 'https://images.unsplash.com/photo-1516469825134-b68811f58b13?auto=format&fit=crop&w=800&q=80',
       difficulty: 'Easy',
       estimatedTime: '2-4 min',
       rating: 4.7
     },
     {
-      title: 'Create From Google Search',
-      description: "Transform popular searches into engaging content that answers your audience's questions.",
-      image: 'https://images.unsplash.com/photo-1516321165247-4aa89a48be28?auto=format&fit=crop&w=800&q=80',
+      title: 'Create from Images',
+      description: 'Generate captivating content from your PNG and JPEG images using advanced AI analysis.',
+      image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=800&q=80',
       difficulty: 'Advanced',
       estimatedTime: '8-12 min',
       rating: 4.9
     },
     {
-      title: 'Create From Holidays',
-      description: 'Never miss a holiday with our AI-powered seasonal content generator.',
-      image: 'https://images.unsplash.com/photo-1530196606945-81ab3df90d91?auto=format&fit=crop&w=800&q=80',
+      title: 'Copy a Style',
+      description: 'Analyze and replicate successful LinkedIn content styles for your own posts.',
+      image: 'https://images.unsplash.com/photo-1512486130939-2c4f79935e4f?auto=format&fit=crop&w=800&q=80',
       difficulty: 'Beginner',
       estimatedTime: '4-6 min',
       rating: 4.6
     },
     {
-      title: 'Create From Brainstorm',
-      description: 'Let our AI brainstorm creative content ideas aligned with your marketing strategy.',
-      image: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80',
+      title: 'Ask AI to Write',
+      description: 'Let our advanced AI create custom content tailored to your brand voice and goals.',
+      image: 'https://images.unsplash.com/photo-1515378960530-7c0da6231fb1?auto=format&fit=crop&w=800&q=80',
       difficulty: 'Intermediate',
       estimatedTime: '6-8 min',
       rating: 4.8

@@ -1,5 +1,6 @@
 import React from 'react';
 import { EditorToolbar } from './EditorToolbar';
+import { TextSelectionToolbar } from './TextSelectionToolbar';
 
 interface PlatformEditorProps {
   platform: string;
@@ -18,6 +19,14 @@ export const PlatformEditor: React.FC<PlatformEditorProps> = ({
   onImageClick,
   onAIClick
 }) => {
+  const handleBoldClick = () => {
+    document.execCommand('bold', false);
+  };
+
+  const handleItalicClick = () => {
+    document.execCommand('italic', false);
+  };
+
   return (
     <div className="flex-1 flex flex-col">
       <EditorToolbar onImageClick={onImageClick} onAIClick={onAIClick} />
@@ -41,12 +50,19 @@ export const PlatformEditor: React.FC<PlatformEditorProps> = ({
             </div>
           </div>
         ) : (
-          <div
-            className="w-full h-full p-4 focus:outline-none overflow-auto"
-            contentEditable
-            dangerouslySetInnerHTML={{ __html: content }}
-            onInput={(e) => onContentChange(e.currentTarget.innerHTML)}
-          />
+          <>
+            <TextSelectionToolbar
+              onBold={handleBoldClick}
+              onItalic={handleItalicClick}
+              onAIEdit={onAIClick}
+            />
+            <div
+              className="w-full h-full p-4 focus:outline-none overflow-auto"
+              contentEditable
+              dangerouslySetInnerHTML={{ __html: content }}
+              onInput={(e) => onContentChange(e.currentTarget.innerHTML)}
+            />
+          </>
         )}
       </div>
     </div>

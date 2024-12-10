@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiArrowLeft, FiBold, FiItalic, FiImage, FiZap, FiSave, FiSend, FiEye } from 'react-icons/fi';
+import { FiArrowLeft, FiBold, FiItalic, FiImage, FiZap, FiSave, FiSend, FiEye, FiX } from 'react-icons/fi';
 import { PlatformTabs } from './PlatformTabs';
 import { AIChat } from './AIChat';
 import { ImagePicker } from './ImagePicker';
@@ -32,7 +32,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
       ])
     )
   );
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
 
   const handleTextEdit = (command: string) => {
     document.execCommand(command, false);
@@ -45,11 +45,20 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
     }));
   };
 
+  const handleImageSelect = (url: string) => {
+    setSelectedImages(prev => [...prev, url]);
+    setShowImagePicker(false);
+  };
+
+  const handleImageDelete = (index: number) => {
+    setSelectedImages(prev => prev.filter((_, i) => i !== index));
+  };
+
   if (showPreview) {
     return (
       <PreviewScreen
         content={platformContent[activePlatform]}
-        image={selectedImage}
+        image={selectedImages[0]} // For now, using first image as main image
         platform={activePlatform}
         companyName={user?.company || 'Your Company'}
         onBack={() => setShowPreview(false)}
@@ -133,24 +142,39 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
               </button>
             </div>
 
-            <div className="flex-1">
-              {selectedImage && (
-                <div className="mb-4">
-                  <img src={selectedImage} alt="Selected" className="max-h-48 rounded-lg object-cover" />
-                  <button
-                    onClick={() => setSelectedImage(null)}
-                    className="mt-2 text-sm text-pink-500 hover:text-pink-600"
-                  >
-                    Remove image
-                  </button>
-                </div>
-              )}
+            <div className="flex-1 flex flex-col">
               <div
-                className="w-full h-full focus:outline-none overflow-auto"
+                className="flex-1 w-full focus:outline-none overflow-auto mb-4"
                 contentEditable
                 dangerouslySetInnerHTML={{ __html: platformContent[activePlatform] || '' }}
                 onInput={(e) => handleContentUpdate(activePlatform, e.currentTarget.innerHTML)}
               />
+
+              {selectedImages.length > 0 && (
+                <div className="border-t border-indigo-100 pt-4">
+                  <h3 className="text-sm font-medium text-indigo-900 mb-3">Attached Images</h3>
+                  <div className="grid grid-cols-6 gap-4">
+                    {selectedImages.map((image, index) => (
+                      <div
+                        key={index}
+                        className="relative group aspect-square rounded-lg overflow-hidden"
+                      >
+                        <img
+                          src={image}
+                          alt={`Attached ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          onClick={() => handleImageDelete(index)}
+                          className="absolute top-2 right-2 p-1 bg-red-500 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <FiX className="w-4 h-4 text-white" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -170,7 +194,8 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
       {showImagePicker && (
         <ImagePicker
           onClose={() => setShowImagePicker(false)}
-          onImageSelect={(url) => setSelectedImage(url)}
+          onImageSelect={handleImageSelect}
+          allowMultiple={true}
         />
       )}
     </div>

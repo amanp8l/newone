@@ -5,9 +5,14 @@ import axios from 'axios';
 interface ImagePickerProps {
   onClose: () => void;
   onImageSelect: (url: string) => void;
+  allowMultiple?: boolean;
 }
 
-export const ImagePicker: React.FC<ImagePickerProps> = ({ onClose, onImageSelect }) => {
+export const ImagePicker: React.FC<ImagePickerProps> = ({
+  onClose,
+  onImageSelect,
+  allowMultiple = false
+}) => {
   const [view, setView] = useState<'options' | 'pexels'>('options');
   const [searchQuery, setSearchQuery] = useState('');
   const [images, setImages] = useState<string[]>([]);
@@ -15,15 +20,20 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({ onClose, onImageSelect
   const [error, setError] = useState<string | null>(null);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
+    const files = e.target.files;
+    if (!files) return;
+
+    Array.from(files).forEach(file => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
         onImageSelect(result);
-        onClose();
       };
       reader.readAsDataURL(file);
+    });
+
+    if (!allowMultiple) {
+      onClose();
     }
   };
 
@@ -35,7 +45,7 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({ onClose, onImageSelect
     try {
       const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/get_images', {
         query: searchQuery,
-        number_of_pics: 5
+        number_of_pics: 10
       });
       
       if (response.data?.result) {
@@ -48,6 +58,13 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({ onClose, onImageSelect
       setError('Failed to fetch images. Please try again.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleImageSelect = (url: string) => {
+    onImageSelect(url);
+    if (!allowMultiple) {
+      onClose();
     }
   };
 
@@ -73,6 +90,7 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({ onClose, onImageSelect
                 type="file"
                 accept="image/*"
                 onChange={handleFileUpload}
+                multiple={allowMultiple}
                 className="hidden"
               />
               <div className="aspect-square rounded-2xl border-2 border-dashed border-indigo-200 flex flex-col items-center justify-center p-8 transition-all group-hover:border-indigo-400 group-hover:bg-indigo-50">
@@ -81,7 +99,7 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({ onClose, onImageSelect
                 </div>
                 <h4 className="text-lg font-medium text-indigo-900 mb-2">Upload from Computer</h4>
                 <p className="text-sm text-indigo-600 text-center">
-                  Drag and drop or click to browse
+                  {allowMultiple ? 'Select multiple images' : 'Select an image'}
                 </p>
               </div>
             </label>
@@ -142,10 +160,7 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({ onClose, onImageSelect
               {images.map((url, index) => (
                 <button
                   key={index}
-                  onClick={() => {
-                    onImageSelect(url);
-                    onClose();
-                  }}
+                  onClick={() => handleImageSelect(url)}
                   className="group relative aspect-video rounded-lg overflow-hidden hover:ring-2 hover:ring-indigo-500 transition-all"
                 >
                   <img 

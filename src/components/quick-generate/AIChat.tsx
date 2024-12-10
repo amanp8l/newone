@@ -1,11 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FiSend } from 'react-icons/fi';
+import { FiSend, FiX } from 'react-icons/fi';
 import axios from 'axios';
-
-interface Message {
-  type: 'user' | 'ai';
-  content: string;
-}
+import { Message } from 'postcss';
 
 interface AIChatProps {
   onClose: () => void;
@@ -15,6 +11,7 @@ interface AIChatProps {
 }
 
 export const AIChat: React.FC<AIChatProps> = ({
+  onClose,
   activePlatform,
   currentContent,
   onContentUpdate
@@ -73,6 +70,16 @@ export const AIChat: React.FC<AIChatProps> = ({
 
   return (
     <div className="flex flex-col h-full bg-white/70 backdrop-blur-sm rounded-xl shadow-sm">
+      <div className="flex items-center justify-between p-4 border-b border-indigo-100">
+        <h3 className="font-semibold text-indigo-900">AI Assistant</h3>
+        <button
+          onClick={onClose}
+          className="p-2 hover:bg-indigo-50 rounded-lg transition-colors"
+        >
+          <FiX className="w-5 h-5 text-indigo-400 hover:text-indigo-600" />
+        </button>
+      </div>
+
       <div className="flex-1 overflow-y-auto p-6 space-y-4">
         {messages.map((message, index) => (
           <div

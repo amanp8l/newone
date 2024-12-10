@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { FiArrowRight, FiBold, FiItalic, FiImage, FiSend, FiArrowLeft, FiX } from 'react-icons/fi';
 import { ImagePicker } from './ImagePicker';
+import { PlatformPreview } from './PlatformPreview';
 
 interface DraftEditorProps {
   content: string;
@@ -21,9 +22,11 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
   onBack,
   isValid,
   isLoading = false,
-  selectedPlatforms}) => {
+  selectedPlatforms
+}) => {
   const [showImagePicker, setShowImagePicker] = useState(false);
-  const [currentImage, setCurrentImage] = useState<string | null>(null);
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [activePlatform, setActivePlatform] = useState('twitter'); // Default to Twitter
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleBoldClick = () => {
@@ -59,12 +62,11 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
   };
 
   const handleImageSelect = (url: string) => {
-    setCurrentImage(url);
-    setShowImagePicker(false);
+    setSelectedImages(prev => [...prev, url]);
   };
 
-  const removeImage = () => {
-    setCurrentImage(null);
+  const removeImage = (index: number) => {
+    setSelectedImages(prev => prev.filter((_, i) => i !== index));
   };
 
   // Platform icons/images mapping
@@ -75,10 +77,10 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
   };
 
   const handleNext = () => {
-    if (currentImage) {
-      const contentWithImage = `${content}\n\n[IMAGE:${currentImage}]`;
-      onChange(contentWithImage);
-    }
+    const contentWithImages = selectedImages.length > 0 
+      ? `${content}\n\n${selectedImages.map(img => `[IMAGE:${img}]`).join('\n')}`
+      : content;
+    onChange(contentWithImages);
     onNext();
   };
 
@@ -96,16 +98,19 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
             </button>
             <div className="flex items-center space-x-2">
               {selectedPlatforms.map((platform) => (
-                <div
+                <button
                   key={platform}
-                  className="w-8 h-8 rounded-lg overflow-hidden"
+                  onClick={() => setActivePlatform(platform)}
+                  className={`w-10 h-10 rounded-lg overflow-hidden transition-transform ${
+                    activePlatform === platform ? 'ring-2 ring-indigo-500 scale-110' : ''
+                  }`}
                 >
                   <img 
                     src={platformImages[platform as keyof typeof platformImages]} 
                     alt={platform}
                     className="w-full h-full object-cover"
                   />
-                </div>
+                </button>
               ))}
             </div>
           </div>
@@ -136,38 +141,57 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
               >
                 <FiImage className="w-5 h-5 text-indigo-600" />
                 <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-indigo-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                  Add an image
+                  Add images
                 </span>
               </button>
             </div>
 
-            <div className="p-6">
-              <textarea
-                ref={textareaRef}
-                value={content}
-                onChange={(e) => onChange(e.target.value)}
-                className="w-full min-h-[500px] p-6 rounded-xl border-2 border-indigo-100 focus:border-indigo-300 focus:ring-2 focus:ring-indigo-500/20 transition-all outline-none font-sans text-base resize-none"
-                placeholder="Write your content here..."
-              />
-            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
+              <div className="space-y-6">
+                <textarea
+                  ref={textareaRef}
+                  value={content}
+                  onChange={(e) => onChange(e.target.value)}
+                  className="w-full min-h-[300px] p-4 rounded-xl border-2 border-indigo-100 focus:border-indigo-300 focus:ring-2 focus:ring-indigo-500/20 transition-all outline-none font-sans text-base resize-none"
+                  placeholder="Write your content here..."
+                />
 
-            {currentImage && (
-              <div className="px-6 pb-6">
-                <div className="relative">
-                  <img 
-                    src={currentImage} 
-                    alt="Selected" 
-                    className="w-full h-48 object-cover rounded-xl"
-                  />
-                  <button
-                    onClick={removeImage}
-                    className="absolute top-2 right-2 p-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors"
-                  >
-                    <FiX className="w-4 h-4" />
-                  </button>
-                </div>
+                {selectedImages.length > 0 && (
+                  <div className="space-y-3">
+                    <h4 className="font-medium text-indigo-900">Attached Images</h4>
+                    <div className="grid grid-cols-4 gap-4">
+                      {selectedImages.map((image, index) => (
+                        <div
+                          key={index}
+                          className="relative group aspect-square rounded-lg overflow-hidden"
+                        >
+                          <img
+                            src={image}
+                            alt={`Attached ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            onClick={() => removeImage(index)}
+                            className="absolute top-2 right-2 p-1.5 bg-red-500 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <FiX className="w-4 h-4 text-white" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
+
+              <div className="bg-gray-50 rounded-xl p-6">
+                <PlatformPreview
+                  platform={activePlatform}
+                  content={content}
+                  companyName="Your Company"
+                  image={selectedImages[0]}
+                />
+              </div>
+            </div>
 
             <div className="p-6 border-t border-indigo-100 flex space-x-4">
               <button
@@ -194,6 +218,7 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
         <ImagePicker
           onClose={() => setShowImagePicker(false)}
           onImageSelect={handleImageSelect}
+          allowMultiple={true}
         />
       )}
 

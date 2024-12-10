@@ -1,6 +1,7 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { EditorToolbar } from './EditorToolbar';
 import { BlogPreview } from './BlogPreview';
+import { TextSelectionToolbar } from './TextSelectionToolbar';
 
 interface BlogEditorProps {
   content: string;
@@ -24,6 +25,14 @@ export const BlogEditor: React.FC<BlogEditorProps> = ({
   companyName
 }) => {
   const [showPreview, setShowPreview] = useState(false);
+
+  const handleBoldClick = () => {
+    document.execCommand('bold', false);
+  };
+
+  const handleItalicClick = () => {
+    document.execCommand('italic', false);
+  };
 
   return (
     <div className="flex-1 flex flex-col">
@@ -65,6 +74,11 @@ export const BlogEditor: React.FC<BlogEditorProps> = ({
           </div>
         ) : (
           <>
+            <TextSelectionToolbar
+              onBold={handleBoldClick}
+              onItalic={handleItalicClick}
+              onAIEdit={onAIClick}
+            />
             <div
               className="w-full h-full p-4 focus:outline-none overflow-auto"
               contentEditable
