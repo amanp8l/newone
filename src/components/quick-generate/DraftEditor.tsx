@@ -46,8 +46,7 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
   onBack,
   isValid,
   isLoading = false,
-  selectedPlatforms
-}) => {
+  selectedPlatforms}) => {
   const { user } = useAuthStore();
   const [showImagePicker, setShowImagePicker] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
@@ -249,7 +248,7 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
                 <PlatformPreview
                   platform={activePlatform}
                   content={content}
-                  companyName="Your Company"
+                  companyName={user?.company || 'Company Name'}
                   image={selectedImages[0]}
                 />
               </div>

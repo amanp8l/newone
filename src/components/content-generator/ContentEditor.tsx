@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { FiX, FiCheck } from 'react-icons/fi';
 import { BlogEditor } from './editors/BlogEditor';
 import { PlatformEditor } from './editors/PlatformEditor';
 import { ImagePicker } from '../quick-generate/ImagePicker';
@@ -7,6 +7,8 @@ import { AIAssistant } from './editors/AIAssistant';
 import { PreviewScreen } from '../quick-generate/PreviewScreen';
 import { formatBlogContent } from '../../utils/contentFormatter';
 import { formatPlatformContent } from '../../utils/platformFormatter';
+import axios from 'axios';
+import { useAuthStore } from '../../store/authStore';
 
 interface ContentEditorProps {
   formData: {
@@ -21,10 +23,33 @@ interface ContentEditorProps {
   onBack: () => void;
 }
 
+interface NotificationProps {
+  type: 'success' | 'error';
+  message: string;
+}
+
+const Notification: React.FC<NotificationProps> = ({ type, message }) => (
+  <div className="fixed top-6 right-6 bg-white rounded-xl shadow-lg p-4 animate-fadeIn z-50 flex items-center space-x-3 border border-indigo-100">
+    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+      type === 'success' 
+        ? 'bg-gradient-to-br from-indigo-500 to-pink-500' 
+        : 'bg-red-500'
+    }`}>
+      {type === 'success' ? (
+        <FiCheck className="w-5 h-5 text-white" />
+      ) : (
+        <FiX className="w-5 h-5 text-white" />
+      )}
+    </div>
+    <p className="text-indigo-900">{message}</p>
+  </div>
+);
+
 export const ContentEditor: React.FC<ContentEditorProps> = ({
   formData,
   onBack,
 }) => {
+  useAuthStore();
   const [activeTab, setActiveTab] = useState<'blog' | 'twitter' | 'facebook' | 'linkedin'>('blog');
   const [blogContent, setBlogContent] = useState('');
   const [platformContent, setPlatformContent] = useState({
@@ -38,10 +63,12 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [platformsEnabled, setPlatformsEnabled] = useState(false);
+  const [notification] = useState<NotificationProps | null>(null);
 
   useEffect(() => {
     generateBlogContent();
   }, []);
+
 
   const generateBlogContent = async () => {
     setIsGenerating(true);
@@ -114,6 +141,10 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
 
   return (
     <div className="h-screen bg-gradient-to-br from-indigo-50 to-pink-50 flex flex-col">
+      {notification && (
+        <Notification type={notification.type} message={notification.message} />
+      )}
+
       <div className="flex items-center justify-between p-4 bg-white/70 backdrop-blur-sm border-b border-indigo-100">
         <button
           onClick={onBack}
@@ -121,12 +152,14 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
         >
           Back to Editor
         </button>
-        <button
-          onClick={() => setShowPreview(true)}
-          className="px-6 py-2 bg-gradient-to-r from-indigo-500 to-pink-500 text-white rounded-lg hover:from-indigo-600 hover:to-pink-600 transition-colors"
-        >
-          Preview
-        </button>
+        {activeTab !== 'blog' && (
+          <button
+            onClick={() => setShowPreview(true)}
+            className="px-6 py-2 bg-gradient-to-r from-indigo-500 to-pink-500 text-white rounded-lg hover:from-indigo-600 hover:to-pink-600 transition-colors"
+          >
+            Preview
+          </button>
+        )}
       </div>
 
       <div className="flex-1 p-6 flex gap-6">
