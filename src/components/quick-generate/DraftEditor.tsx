@@ -1,7 +1,9 @@
 import React, { useState, useRef } from 'react';
-import { FiArrowRight, FiBold, FiItalic, FiImage, FiSend, FiArrowLeft, FiX } from 'react-icons/fi';
+import { FiArrowRight, FiBold, FiItalic, FiImage, FiSend, FiArrowLeft, FiX, FiCheck, FiLoader } from 'react-icons/fi';
 import { ImagePicker } from './ImagePicker';
 import { PlatformPreview } from './PlatformPreview';
+import { useAuthStore } from '../../store/authStore';
+import axios from 'axios';
 
 interface DraftEditorProps {
   content: string;
@@ -15,6 +17,28 @@ interface DraftEditorProps {
   onImageClick: () => void;
 }
 
+interface NotificationProps {
+  type: 'success' | 'error';
+  message: string;
+}
+
+const Notification: React.FC<NotificationProps> = ({ type, message }) => (
+  <div className="fixed top-6 right-6 bg-white rounded-xl shadow-lg p-4 animate-fadeIn z-50 flex items-center space-x-3 border border-indigo-100">
+    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+      type === 'success' 
+        ? 'bg-gradient-to-br from-indigo-500 to-pink-500' 
+        : 'bg-red-500'
+    }`}>
+      {type === 'success' ? (
+        <FiCheck className="w-5 h-5 text-white" />
+      ) : (
+        <FiX className="w-5 h-5 text-white" />
+      )}
+    </div>
+    <p className="text-indigo-900">{message}</p>
+  </div>
+);
+
 export const DraftEditor: React.FC<DraftEditorProps> = ({
   content,
   onChange,
@@ -24,9 +48,12 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
   isLoading = false,
   selectedPlatforms
 }) => {
+  const { user } = useAuthStore();
   const [showImagePicker, setShowImagePicker] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
-  const [activePlatform, setActivePlatform] = useState('twitter'); // Default to Twitter
+  const [activePlatform, setActivePlatform] = useState('twitter');
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [notification, setNotification] = useState<NotificationProps | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleBoldClick = () => {
@@ -69,6 +96,37 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
     setSelectedImages(prev => prev.filter((_, i) => i !== index));
   };
 
+  const showNotification = (type: 'success' | 'error', message: string) => {
+    setNotification({ type, message });
+    setTimeout(() => setNotification(null), 3000);
+  };
+
+  const handlePublish = async () => {
+    if (!user?.email) {
+      showNotification('error', 'User email not found');
+      return;
+    }
+
+    setIsPublishing(true);
+
+    try {
+      const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/post_to_social_media', {
+        user_email: user.email,
+        platform: activePlatform.toLowerCase(),
+        post: content,
+        media_url: selectedImages
+      });
+
+      if (response.status === 200) {
+        showNotification('success', 'Post successfully published!');
+      }
+    } catch (error: any) {
+      showNotification('error', `Post failed. Please ensure that you have connected ${activePlatform}`);
+    } finally {
+      setIsPublishing(false);
+    }
+  };
+
   // Platform icons/images mapping
   const platformImages = {
     twitter: "https://cdn-icons-png.flaticon.com/512/733/733579.png",
@@ -86,6 +144,10 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
 
   return (
     <div className="h-screen bg-gradient-to-br from-indigo-50 to-pink-50 flex flex-col">
+      {notification && (
+        <Notification type={notification.type} message={notification.message} />
+      )}
+
       <div className="p-6">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-6">
@@ -203,11 +265,21 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
                 <FiArrowRight className="w-5 h-5" />
               </button>
               <button
-                disabled={!isValid || isLoading}
+                onClick={handlePublish}
+                disabled={!isValid || isPublishing}
                 className="px-8 py-4 border-2 border-indigo-200 text-indigo-600 rounded-xl hover:bg-indigo-50 transition-colors flex items-center space-x-2"
               >
-                <FiSend className="w-5 h-5" />
-                <span>Publish</span>
+                {isPublishing ? (
+                  <>
+                    <FiLoader className="w-5 h-5 animate-spin" />
+                    <span>Publishing...</span>
+                  </>
+                ) : (
+                  <>
+                    <FiSend className="w-5 h-5" />
+                    <span>Publish</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
