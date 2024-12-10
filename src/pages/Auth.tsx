@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiMail, FiLock, FiBriefcase, FiArrowRight } from 'react-icons/fi';
-import { login } from '../services/api';
+import { FiMail, FiLock, FiBriefcase, FiArrowRight, FiLoader } from 'react-icons/fi';
+import { login, signup } from '../services/api';
 import { useAuthStore } from '../store/authStore';
 import { motion } from 'framer-motion';
 
@@ -30,11 +30,17 @@ export const Auth: React.FC = () => {
     try {
       if (isLogin) {
         const response = await login(email, password);
-        setAuth(true, { email, company: response.userData.company });
+        if (response && response.userData) {
+          setAuth(true, response.userData);
+          navigate('/');
+        }
       } else {
-        setAuth(true, { email, company });
+        const response = await signup(email, password, company);
+        if (response && response.userData) {
+          setAuth(true, response.userData);
+          navigate('/');
+        }
       }
-      navigate('/');
     } catch (err: any) {
       setError(err.message || 'An error occurred');
     } finally {
@@ -134,8 +140,17 @@ export const Auth: React.FC = () => {
               disabled={loading}
               className="w-full py-4 bg-gradient-to-r from-indigo-500 to-pink-500 text-white rounded-xl hover:from-indigo-600 hover:to-pink-600 transition-all transform hover:-translate-y-1 disabled:opacity-50 disabled:hover:translate-y-0 flex items-center justify-center space-x-3 text-lg font-medium shadow-xl shadow-indigo-500/25"
             >
-              <span>{loading ? 'Please wait...' : (isLogin ? 'Sign In' : 'Create Account')}</span>
-              <FiArrowRight className="w-5 h-5" />
+              {loading ? (
+                <>
+                  <FiLoader className="w-5 h-5 animate-spin" />
+                  <span>Please wait...</span>
+                </>
+              ) : (
+                <>
+                  <span>{isLogin ? 'Sign In' : 'Create Account'}</span>
+                  <FiArrowRight className="w-5 h-5" />
+                </>
+              )}
             </button>
 
             <p className="text-center text-indigo-600 text-lg">
