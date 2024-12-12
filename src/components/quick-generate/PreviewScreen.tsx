@@ -84,6 +84,9 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({ onClose, onSchedule }) =>
               value={selectedTime}
               onChange={(e) => setSelectedTime(e.target.value)}
               className="w-full rounded-lg border border-indigo-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              step="3600"
+              min="00:00"
+              max="23:59"
             />
           </div>
           <button

@@ -141,7 +141,7 @@ export const Dashboard: React.FC = () => {
     {
       title: 'Create from Video',
       description: 'Turn YouTube videos and other video content into engaging social media updates.',
-      image: 'https://images.unsplash.com/photo-1516469825134-b68811f58b13?auto=format&fit=crop&w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1719937051124-91c677bc58fc?q=80&w=3272&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
       difficulty: 'Easy',
       estimatedTime: '2-4 min',
       rating: 4.7

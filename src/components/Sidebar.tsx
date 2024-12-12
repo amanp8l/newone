@@ -16,6 +16,22 @@ export const Sidebar: React.FC = () => {
     { icon: <FiHelpCircle />, text: "Help", path: "/help" }
   ];
 
+  const handleNavigation = (path: string) => {
+    // If trying to navigate to home page
+    if (path === '/') {
+      // If already on home page, do a full page reload
+      if (location.pathname === '/') {
+        window.location.href = '/';
+      } else {
+        // Otherwise, navigate to home page
+        navigate('/');
+      }
+    } else {
+      // For other pages, use standard navigation
+      navigate(path);
+    }
+  };
+
   return (
     <div className="w-64 bg-white shadow-xl flex flex-col">
       <div className="p-6">
@@ -32,7 +48,7 @@ export const Sidebar: React.FC = () => {
           {menuItems.map((item) => (
             <button
               key={item.path}
-              onClick={() => navigate(item.path)}
+              onClick={() => handleNavigation(item.path)}
               className={`flex items-center space-x-3 w-full px-4 py-3 transition-colors ${
                 location.pathname === item.path
                   ? 'bg-gradient-to-r from-indigo-500/10 to-pink-500/10 text-indigo-600'

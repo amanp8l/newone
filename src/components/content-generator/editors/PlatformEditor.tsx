@@ -12,7 +12,6 @@ interface PlatformEditorProps {
 }
 
 export const PlatformEditor: React.FC<PlatformEditorProps> = ({
-  platform,
   content,
   onContentChange,
   isGenerating,
@@ -42,10 +41,10 @@ export const PlatformEditor: React.FC<PlatformEditorProps> = ({
                 </div>
               </div>
               <h3 className="text-xl font-semibold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent">
-                Generating {platform} Content
+                Generating Content
               </h3>
               <p className="text-indigo-600 text-center">
-                Optimizing your content for {platform}...
+                Optimizing your content...
               </p>
             </div>
           </div>
