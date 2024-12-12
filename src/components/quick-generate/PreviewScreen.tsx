@@ -84,9 +84,6 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({ onClose, onSchedule }) =>
               value={selectedTime}
               onChange={(e) => setSelectedTime(e.target.value)}
               className="w-full rounded-lg border border-indigo-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              step="3600"
-              min="00:00"
-              max="23:59"
             />
           </div>
           <button
@@ -118,6 +115,18 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
     setTimeout(() => setNotification(null), 3000);
   };
 
+  const convertBase64ToUrl = async (base64String: string): Promise<string> => {
+    try {
+      const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/generate_url_for_image', {
+        b64_string: base64String.split(',')[1] // Remove data URL prefix
+      });
+      return response.data.url;
+    } catch (error) {
+      console.error('Error converting base64 to URL:', error);
+      throw error;
+    }
+  };
+
   const handlePublish = async () => {
     if (!user?.email) {
       showNotification('error', 'User email not found');
@@ -127,12 +136,36 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
     setIsPublishing(true);
 
     try {
-      const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/post_to_social_media', {
+      let imageUrl: string | null = null;
+      
+      // Convert base64 image to URL if image exists and is base64
+      if (image && image.startsWith('data:')) {
+        try {
+          imageUrl = await convertBase64ToUrl(image);
+        } catch (error) {
+          console.error('Error converting image:', error);
+          showNotification('error', 'Failed to process image');
+          setIsPublishing(false);
+          return;
+        }
+      } else if (image) {
+        // If image is already a URL, use it directly
+        imageUrl = image;
+      }
+
+      // Prepare API payload
+      const payload: any = {
         user_email: user.email,
         platform: platform.toLowerCase(),
-        post: content,
-        media_url: image ? [image] : []
-      });
+        post: content
+      };
+
+      // Only add media_url if we have an image URL
+      if (imageUrl) {
+        payload.media_url = [imageUrl];
+      }
+
+      const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/post_to_social_media', payload);
 
       if (response.status === 200) {
         showNotification('success', 'Post successfully published!');
@@ -153,13 +186,29 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
     setIsPublishing(true);
 
     try {
+      let imageUrl: string | null = null;
+      
+      // Convert base64 image to URL if image exists and is base64
+      if (image && image.startsWith('data:')) {
+        try {
+          imageUrl = await convertBase64ToUrl(image);
+        } catch (error) {
+          console.error('Error converting image:', error);
+          showNotification('error', 'Failed to process image');
+          setIsPublishing(false);
+          return;
+        }
+      } else if (image) {
+        // If image is already a URL, use it directly
+        imageUrl = image;
+      }
+
       // Prepare schedule data
-      const scheduleData = {
+      const scheduleData: any = {
         data: {
           user_email: user.email,
           platform: platform.toLowerCase(),
-          post: content,
-          media_url: image ? [image] : []
+          post: content
         },
         time: {
           year: scheduledDate.getFullYear(),
@@ -170,12 +219,17 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
         }
       };
 
+      // Only add media_url if we have an image URL
+      if (imageUrl) {
+        scheduleData.data.media_url = [imageUrl];
+      }
+
       // Schedule the post
       const scheduleResponse = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/set_auto_schedule', scheduleData);
 
       if (scheduleResponse.status === 200) {
-        // Save to calendar
-        const calendarData = {
+        // Prepare calendar data
+        const calendarData: any = {
           year: scheduledDate.getFullYear(),
           month: scheduledDate.getMonth() + 1,
           day: scheduledDate.getDate(),
@@ -183,9 +237,13 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
           minutes: scheduledDate.getMinutes(),
           platform: platform.toLowerCase(),
           user_email: user.email,
-          content: content,
-          media: image ? [image] : []
+          content: content
         };
+
+        // Only add media if we have an image URL
+        if (imageUrl) {
+          calendarData.media = [imageUrl];
+        }
 
         await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/db/add_post', calendarData);
 
