@@ -62,14 +62,14 @@ export const Sidebar: React.FC = () => {
         </div>
       </nav>
 
-      <div className="p-6">
+      {/* <div className="p-6">
         <button 
           onClick={() => navigate('/pricing')}
           className="w-full bg-gradient-to-r from-indigo-500 to-pink-500 text-white py-2.5 font-medium hover:from-indigo-600 hover:to-pink-600 transition-colors shadow-lg shadow-indigo-500/25 rounded-xl"
         >
           Upgrade Pro
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };
