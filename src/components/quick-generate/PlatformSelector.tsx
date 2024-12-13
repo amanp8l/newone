@@ -1,17 +1,21 @@
 import React from 'react';
-import { FiTwitter, FiFacebook, FiLinkedin, FiArrowRight, FiCheck } from 'react-icons/fi';
+import { FiTwitter, FiFacebook, FiLinkedin, FiArrowRight, FiCheck, FiArrowLeft, FiLoader } from 'react-icons/fi';
 import { Platform } from './types';
 
 interface PlatformSelectorProps {
   selectedPlatforms: string[];
   onPlatformsChange: (platforms: string[]) => void;
   onNext: () => void;
+  onBack: () => void;
+  isGenerating: boolean;
 }
 
 export const PlatformSelector: React.FC<PlatformSelectorProps> = ({
   selectedPlatforms,
   onPlatformsChange,
   onNext,
+  onBack,
+  isGenerating
 }) => {
   const platforms: Platform[] = [
     { id: 'twitter', name: 'Twitter', icon: FiTwitter, connected: true },
@@ -30,6 +34,16 @@ export const PlatformSelector: React.FC<PlatformSelectorProps> = ({
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-pink-50 flex items-center justify-center p-6">
       <div className="max-w-3xl w-full">
+        <div className="flex items-center justify-between mb-8">
+          <button
+            onClick={onBack}
+            className="flex items-center space-x-2 text-indigo-600 hover:text-indigo-700"
+          >
+            <FiArrowLeft className="w-4 h-4" />
+            <span>Back to Editor</span>
+          </button>
+        </div>
+
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent mb-4">
             Choose Your Platforms
@@ -79,11 +93,20 @@ export const PlatformSelector: React.FC<PlatformSelectorProps> = ({
           <div className="flex justify-center">
             <button
               onClick={onNext}
-              disabled={selectedPlatforms.length === 0}
+              disabled={selectedPlatforms.length === 0 || isGenerating}
               className="px-12 py-4 bg-gradient-to-r from-indigo-500 to-pink-500 text-white rounded-xl hover:from-indigo-600 hover:to-pink-600 transition-all transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center space-x-3 font-medium text-lg shadow-xl shadow-indigo-500/25"
             >
-              <span>Continue to Content Creation</span>
-              <FiArrowRight className="w-5 h-5" />
+              {isGenerating ? (
+                <>
+                  <FiLoader className="w-5 h-5 animate-spin" />
+                  <span>Generating Content...</span>
+                </>
+              ) : (
+                <>
+                  <span>Generate Content</span>
+                  <FiArrowRight className="w-5 h-5" />
+                </>
+              )}
             </button>
           </div>
         </div>
