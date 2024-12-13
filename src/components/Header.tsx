@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiBell, FiSun, FiUser, FiChevronDown, FiLogOut, FiSettings } from 'react-icons/fi';
+import { FiUser, FiChevronDown, FiLogOut, FiSettings } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 
@@ -51,12 +51,6 @@ export const Header: React.FC = () => {
         </div>
 
         <div className="flex items-center space-x-6">
-          <button className="p-2 hover:bg-indigo-50 rounded-xl transition-colors">
-            <FiSun className="w-5 h-5 text-indigo-600" />
-          </button>
-          <button className="p-2 hover:bg-indigo-50 rounded-xl transition-colors">
-            <FiBell className="w-5 h-5 text-indigo-600" />
-          </button>
           <div className="relative">
             <button 
               onClick={() => setShowDropdown(!showDropdown)}

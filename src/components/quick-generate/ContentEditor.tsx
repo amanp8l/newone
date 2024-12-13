@@ -6,6 +6,7 @@ import { ImagePicker } from './ImagePicker';
 import { PreviewScreen } from './PreviewScreen';
 import { GeneratedContent } from './types';
 import { useAuthStore } from '../../store/authStore';
+import { formatPlatformContent } from '../../utils/platformFormatter';
 
 interface ContentEditorProps {
   selectedPlatforms: string[];
@@ -28,15 +29,16 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
     Object.fromEntries(
       Object.entries(generatedContent).map(([platform, content]) => [
         platform,
-        content
+        formatPlatformContent(content)
       ])
     )
   );
 
   const handleContentUpdate = (platform: string, content: string) => {
+    const formattedContent = formatPlatformContent(content);
     setPlatformContent(prev => ({
       ...prev,
-      [platform]: content
+      [platform]: formattedContent
     }));
   };
 
@@ -62,7 +64,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
   }
 
   return (
-    <div className="h-screen bg-gradient-to-br from-indigo-50 to-pink-50 flex flex-col">
+    <div className="h-screen bg-gradient-to-br from-indigo-50 to-pink-50 flex flex-col overflow-hidden">
       <div className="flex items-center justify-between p-4 bg-white/70 backdrop-blur-sm border-b border-indigo-100">
         <button
           onClick={onBack}
@@ -80,9 +82,9 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
         </button>
       </div>
 
-      <div className="flex-1 p-6 flex gap-6">
-        <div className={`flex-1 transition-all duration-300 ${showAIChat ? 'w-2/3' : 'w-full'}`}>
-          <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-sm p-6 h-full flex flex-col">
+      <div className="flex-1 p-6 flex gap-6 overflow-hidden">
+        <div className={`flex-1 transition-all duration-300 flex flex-col ${showAIChat ? 'w-2/3' : 'w-full'}`}>
+          <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-sm p-6 flex flex-col overflow-hidden">
             <PlatformTabs
               platforms={selectedPlatforms}
               activePlatform={activePlatform}
@@ -129,7 +131,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
               </button>
             </div>
 
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col overflow-hidden">
               <div
                 className="flex-1 w-full focus:outline-none overflow-auto mb-4"
                 contentEditable
