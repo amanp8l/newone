@@ -57,7 +57,7 @@ export const TopicSelector: React.FC<TopicSelectorProps> = ({
         const topicList = response.data
           .split('\n')
           .filter((line: string) => line.trim())
-          .map((line: string) => line.replace(/^[-*•]\s*/, '').trim());
+          .map((line: string) => line.replace(/^[-*•]\s*/, '').replace(/\*+/g, '').trim());
 
         setSuggestions(topicList);
       }
