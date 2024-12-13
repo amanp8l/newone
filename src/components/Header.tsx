@@ -12,7 +12,7 @@ export const Header: React.FC = () => {
   const getPageTitle = () => {
     switch (location.pathname) {
       case '/':
-        return 'Welcome to SocialHub';
+        return 'Welcome to Kimmchi';
       case '/ai-playground':
         return 'AI Agents';
       case '/brands':
@@ -30,9 +30,9 @@ export const Header: React.FC = () => {
       case '/calendar':
         return 'Post Calendar';
       case '/help':
-        return 'Ask for Help';  
+        return 'Ask for Help';
       default:
-        return 'SocialHub';
+        return 'Kimmchi';
     }
   };
 

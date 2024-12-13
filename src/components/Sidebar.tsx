@@ -39,7 +39,7 @@ export const Sidebar: React.FC = () => {
           <div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-blue-500 flex items-center justify-center">
             <div className="w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-white border-b-[6px] border-b-transparent ml-1"></div>
           </div>
-          <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent">SocialHub</span>
+          <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent">Kimmchi</span>
         </div>
       </div>
 
