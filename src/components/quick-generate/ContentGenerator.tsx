@@ -6,86 +6,128 @@ import { generatePlatformContent } from './api';
 import { GeneratedContent } from './types';
 import { ImagePicker } from './ImagePicker';
 
+type Step = 1 | 2 | 3;
+
+interface QuickGenerateState {
+  step: Step;
+  selectedPlatforms: string[];
+  draftContent: string;
+  generatedContent: GeneratedContent;
+  isGenerating: boolean;
+  showImagePicker: boolean;
+  selectedImage: string | null;
+}
+
 export const QuickGenerate: React.FC = () => {
-  const [step, setStep] = useState(1);
-  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
-  const [draftContent, setDraftContent] = useState('');
-  const [generatedContent, setGeneratedContent] = useState<GeneratedContent>({});
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [showImagePicker, setShowImagePicker] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [state, setState] = useState<QuickGenerateState>({
+    step: 1,
+    selectedPlatforms: [],
+    draftContent: '',
+    generatedContent: {},
+    isGenerating: false,
+    showImagePicker: false,
+    selectedImage: null
+  });
+
+  const setPartialState = (newState: Partial<QuickGenerateState>) => {
+    setState(prevState => ({ ...prevState, ...newState }));
+  };
+
+  const handlePlatformsChange = (platforms: string[]) => {
+    setPartialState({ selectedPlatforms: platforms });
+  };
+
+  const handleNextStep = () => {
+    setPartialState({ step: (state.step + 1) as Step });
+  };
+
+  const handlePreviousStep = () => {
+    setPartialState({ step: (state.step - 1) as Step });
+  };
 
   const handleDraftNext = async () => {
-    if (!draftContent.trim()) return;
+    if (!state.draftContent.trim()) return;
 
-    setIsGenerating(true);
+    setPartialState({ isGenerating: true });
     try {
-      const contentPromises = selectedPlatforms.map(platform => 
-        generatePlatformContent(platform, draftContent)
+      const contentPromises = state.selectedPlatforms.map(platform => 
+        generatePlatformContent(platform, state.draftContent)
       );
       
       const results = await Promise.all(contentPromises);
       const contentMap: GeneratedContent = {};
       
-      selectedPlatforms.forEach((platform, index) => {
+      state.selectedPlatforms.forEach((platform, index) => {
         contentMap[platform] = results[index];
       });
 
-      setGeneratedContent(contentMap);
-      setTimeout(() => {
-        setIsGenerating(false);
-        setStep(3);
-      }, 1500);
+      setPartialState({
+        generatedContent: contentMap,
+        isGenerating: false,
+        step: 3
+      });
     } catch (error) {
       console.error('Error generating content:', error);
-      setIsGenerating(false);
+      setPartialState({ isGenerating: false });
     }
   };
 
   const handleImageSelect = (url: string) => {
-    setSelectedImage(url);
-    setShowImagePicker(false);
+    setPartialState({ 
+      selectedImage: url, 
+      showImagePicker: false 
+    });
   };
 
-  if (step === 1) {
-    return (
-      <PlatformSelector
-        selectedPlatforms={selectedPlatforms}
-        onPlatformsChange={setSelectedPlatforms}
-        onNext={() => setStep(2)}
-      />
-    );
-  }
-
-  if (step === 2) {
-    return (
-      <>
-        <DraftEditor
-          content={draftContent}
-          onChange={setDraftContent}
-          onNext={handleDraftNext}
-          onBack={() => setStep(1)}
-          isValid={draftContent.trim().length > 0}
-          isLoading={isGenerating}
-          selectedPlatforms={selectedPlatforms}
-          selectedImage={selectedImage}
-          onImageClick={() => setShowImagePicker(true)}
-        />
-        {showImagePicker && (
-          <ImagePicker
-            onClose={() => setShowImagePicker(false)}
-            onImageSelect={handleImageSelect}
+  const renderStep = () => {
+    switch(state.step) {
+      case 1:
+        return (
+          <PlatformSelector
+            selectedPlatforms={state.selectedPlatforms}
+            onPlatformsChange={handlePlatformsChange}
+            onNext={handleNextStep}
+            onBack={handlePreviousStep}
+            isGenerating={state.isGenerating}
           />
-        )}
-      </>
-    );
-  }
+        );
+      
+      case 2:
+        return (
+          <>
+            <DraftEditor
+              content={state.draftContent}
+              onChange={(content) => setPartialState({ draftContent: content })}
+              onNext={handleDraftNext}
+              onBack={handlePreviousStep}
+              isValid={state.draftContent.trim().length > 0}
+              isLoading={state.isGenerating}
+              selectedPlatforms={state.selectedPlatforms}
+              selectedImage={state.selectedImage}
+              onImageClick={() => setPartialState({ showImagePicker: true })}
+            />
+            {state.showImagePicker && (
+              <ImagePicker
+                onClose={() => setPartialState({ showImagePicker: false })}
+                onImageSelect={handleImageSelect}
+              />
+            )}
+          </>
+        );
+      
+      case 3:
+        return (
+          <ContentEditor
+            selectedPlatforms={state.selectedPlatforms}
+            onBack={handlePreviousStep}
+            generatedContent={state.generatedContent}
+          />
+        );
+      
+      default:
+        return null;
+    }
+  };
 
-  return (
-    <ContentEditor
-      selectedPlatforms={selectedPlatforms}
-      onBack={() => setStep(2)}
-      generatedContent={generatedContent}
-    />
-  );
+  return renderStep();
 };
