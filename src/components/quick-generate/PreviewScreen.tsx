@@ -120,7 +120,7 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
       const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/generate_url_for_image', {
         b64_string: base64String.split(',')[1] // Remove data URL prefix
       });
-      return response.data.url;
+      return response.data;
     } catch (error) {
       console.error('Error converting base64 to URL:', error);
       throw error;
