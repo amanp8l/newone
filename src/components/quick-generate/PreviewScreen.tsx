@@ -139,31 +139,28 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
       let imageUrl: string | null = null;
       
       // Convert base64 image to URL if image exists and is base64
-      if (image && image.startsWith('data:')) {
+      if (image) {
         try {
-          imageUrl = await convertBase64ToUrl(image);
+          if (image.startsWith('data:')) {
+            imageUrl = await convertBase64ToUrl(image);
+          } else {
+            imageUrl = image;
+          }
         } catch (error) {
           console.error('Error converting image:', error);
           showNotification('error', 'Failed to process image');
           setIsPublishing(false);
           return;
         }
-      } else if (image) {
-        // If image is already a URL, use it directly
-        imageUrl = image;
       }
 
       // Prepare API payload
-      const payload: any = {
+      const payload = {
         user_email: user.email,
         platform: platform.toLowerCase(),
-        post: content
+        post: content,
+        media_url: imageUrl ? [imageUrl] : undefined
       };
-
-      // Only add media_url if we have an image URL
-      if (imageUrl) {
-        payload.media_url = [imageUrl];
-      }
 
       const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/post_to_social_media', payload);
 
@@ -189,26 +186,28 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
       let imageUrl: string | null = null;
       
       // Convert base64 image to URL if image exists and is base64
-      if (image && image.startsWith('data:')) {
+      if (image) {
         try {
-          imageUrl = await convertBase64ToUrl(image);
+          if (image.startsWith('data:')) {
+            imageUrl = await convertBase64ToUrl(image);
+          } else {
+            imageUrl = image;
+          }
         } catch (error) {
           console.error('Error converting image:', error);
           showNotification('error', 'Failed to process image');
           setIsPublishing(false);
           return;
         }
-      } else if (image) {
-        // If image is already a URL, use it directly
-        imageUrl = image;
       }
 
       // Prepare schedule data
-      const scheduleData: any = {
+      const scheduleData = {
         data: {
           user_email: user.email,
           platform: platform.toLowerCase(),
-          post: content
+          post: content,
+          media_url: imageUrl ? [imageUrl] : undefined
         },
         time: {
           year: scheduledDate.getFullYear(),
@@ -219,17 +218,12 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
         }
       };
 
-      // Only add media_url if we have an image URL
-      if (imageUrl) {
-        scheduleData.data.media_url = [imageUrl];
-      }
-
       // Schedule the post
       const scheduleResponse = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/set_auto_schedule', scheduleData);
 
       if (scheduleResponse.status === 200) {
         // Prepare calendar data
-        const calendarData: any = {
+        const calendarData = {
           year: scheduledDate.getFullYear(),
           month: scheduledDate.getMonth() + 1,
           day: scheduledDate.getDate(),
@@ -237,13 +231,9 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
           minutes: scheduledDate.getMinutes(),
           platform: platform.toLowerCase(),
           user_email: user.email,
-          content: content
+          content: content,
+          media: imageUrl ? [imageUrl] : undefined
         };
-
-        // Only add media if we have an image URL
-        if (imageUrl) {
-          calendarData.media = [imageUrl];
-        }
 
         await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/db/add_post', calendarData);
 
