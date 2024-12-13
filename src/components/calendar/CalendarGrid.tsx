@@ -1,11 +1,52 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScheduledPost } from './ScheduledPost';
+import { useAuthStore } from '../../store/authStore';
+import axios from 'axios';
 
 interface CalendarGridProps {
   currentDate: Date;
 }
 
+interface ScheduledPostData {
+  _id: string;
+  user_email: string;
+  content: string;
+  year: number;
+  month: number;
+  day: number;
+  hours: number;
+  minutes: number;
+  platform: string;
+  media: string[];
+}
+
 export const CalendarGrid: React.FC<CalendarGridProps> = ({ currentDate }) => {
+  const { user } = useAuthStore();
+  const [scheduledPosts, setScheduledPosts] = useState<ScheduledPostData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchScheduledPosts = async () => {
+      if (!user?.email) return;
+
+      try {
+        const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/db/get_posts', {
+          email: user.email
+        });
+
+        if (response.data) {
+          setScheduledPosts(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching scheduled posts:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchScheduledPosts();
+  }, [user?.email]);
+
   const daysInMonth = new Date(
     currentDate.getFullYear(),
     currentDate.getMonth() + 1,
@@ -18,46 +59,28 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({ currentDate }) => {
     1
   ).getDay();
 
-  // Dummy scheduled posts data
-  const scheduledPosts = {
-    5: [
-      {
-        platform: 'instagram',
-        time: '10:00 AM',
-        content: 'Exciting new features coming to our platform! Stay tuned! 🚀 #Innovation',
-        image: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&auto=format'
-      }
-    ],
-    12: [
-      {
-        platform: 'twitter',
-        time: '2:30 PM',
-        content: 'Join us for a live Q&A session about the future of social media marketing! #SocialMedia'
-      }
-    ],
-    15: [
-      {
-        platform: 'linkedin',
-        time: '11:00 AM',
-        content: "We're excited to announce our latest partnership with industry leaders!"
-      }
-    ],
-    20: [
-      {
-        platform: 'facebook',
-        time: '3:00 PM',
-        content: 'Check out our new case study on successful social media strategies',
-        image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&auto=format'
-      }
-    ]
-  };
-
   const days = Array.from({ length: 42 }, (_, i) => {
     const dayNumber = i - firstDayOfMonth + 1;
     return dayNumber > 0 && dayNumber <= daysInMonth ? dayNumber : null;
   });
 
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  const getPostsForDay = (day: number) => {
+    return scheduledPosts.filter(post => 
+      post.year === currentDate.getFullYear() &&
+      post.month === currentDate.getMonth() + 1 &&
+      post.day === day
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-500 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-sm p-6">
@@ -79,14 +102,15 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({ currentDate }) => {
             {day && (
               <>
                 <div className="text-sm font-medium text-indigo-900 mb-2">{day}</div>
-                {scheduledPosts[day as keyof typeof scheduledPosts]?.map((post, postIndex) => (
-                  <ScheduledPost
-                    key={postIndex}
-                    platform={post.platform}
-                    time={post.time}
-                    content={post.content}
-                  />
-                ))}
+                <div className="space-y-2">
+                  {getPostsForDay(day).map((post) => (
+                    <ScheduledPost
+                      key={post._id}
+                      content={post.content}
+                      platform={post.platform}
+                    />
+                  ))}
+                </div>
               </>
             )}
           </div>

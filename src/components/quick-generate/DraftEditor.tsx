@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
-import { FiArrowRight, FiBold, FiItalic, FiImage, FiSend, FiArrowLeft, FiX, FiCheck, FiLoader } from 'react-icons/fi';
+import { FiArrowLeft, FiBold, FiItalic, FiImage, FiArrowRight, FiX } from 'react-icons/fi';
 import { ImagePicker } from './ImagePicker';
-import { PlatformPreview } from './PlatformPreview';
+import { PreviewScreen } from './PreviewScreen';
 import { useAuthStore } from '../../store/authStore';
 import axios from 'axios';
 
@@ -17,27 +17,12 @@ interface DraftEditorProps {
   onImageClick: () => void;
 }
 
-interface NotificationProps {
-  type: 'success' | 'error';
-  message: string;
+interface Platform {
+  id: string;
+  name: string;
+  image: string;
+  connected: boolean;
 }
-
-const Notification: React.FC<NotificationProps> = ({ type, message }) => (
-  <div className="fixed top-6 right-6 bg-white rounded-xl shadow-lg p-4 animate-fadeIn z-50 flex items-center space-x-3 border border-indigo-100">
-    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-      type === 'success' 
-        ? 'bg-gradient-to-br from-indigo-500 to-pink-500' 
-        : 'bg-red-500'
-    }`}>
-      {type === 'success' ? (
-        <FiCheck className="w-5 h-5 text-white" />
-      ) : (
-        <FiX className="w-5 h-5 text-white" />
-      )}
-    </div>
-    <p className="text-indigo-900">{message}</p>
-  </div>
-);
 
 export const DraftEditor: React.FC<DraftEditorProps> = ({
   content,
@@ -46,14 +31,91 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
   onBack,
   isValid,
   isLoading = false,
-  selectedPlatforms}) => {
+}) => {
   const { user } = useAuthStore();
   const [showImagePicker, setShowImagePicker] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
-  const [activePlatform, setActivePlatform] = useState('twitter');
-  const [isPublishing, setIsPublishing] = useState(false);
-  const [notification, setNotification] = useState<NotificationProps | null>(null);
+  const [showPlatformSelect, setShowPlatformSelect] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [selectedPlatform, setSelectedPlatform] = useState<string>('');
+  const [connectedPlatforms, setConnectedPlatforms] = useState<string[]>([]);
+  const [, setIsLoadingPlatforms] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const platforms: Platform[] = [
+    { 
+      id: 'twitter', 
+      name: 'X (Twitter)', 
+      image: 'https://about.twitter.com/content/dam/about-twitter/x/brand-toolkit/logo-black.png.twimg.1920.png',
+      connected: false 
+    },
+    { 
+      id: 'facebook', 
+      name: 'Facebook', 
+      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Facebook_Logo_%282019%29.png/1200px-Facebook_Logo_%282019%29.png',
+      connected: false 
+    },
+    { 
+      id: 'linkedin', 
+      name: 'LinkedIn', 
+      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/LinkedIn_logo_initials.png/800px-LinkedIn_logo_initials.png',
+      connected: false 
+    },
+    { 
+      id: 'instagram', 
+      name: 'Instagram', 
+      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Instagram_logo_2016.svg/2048px-Instagram_logo_2016.svg.png',
+      connected: false 
+    },
+    { 
+      id: 'tiktok', 
+      name: 'TikTok', 
+      image: 'https://sf-tb-sg.ibytedtos.com/obj/eden-sg/uhtyvueh7nulogpoguhm/tiktok-icon2.png',
+      connected: false 
+    },
+    { 
+      id: 'pinterest', 
+      name: 'Pinterest', 
+      image: 'https://upload.wikimedia.org/wikipedia/commons/0/08/Pinterest-logo.png',
+      connected: false 
+    },
+    { 
+      id: 'youtube', 
+      name: 'YouTube', 
+      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/YouTube_full-color_icon_%282017%29.svg/2560px-YouTube_full-color_icon_%282017%29.svg.png',
+      connected: false 
+    },
+    { 
+      id: 'telegram', 
+      name: 'Telegram', 
+      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Telegram_logo.svg/2048px-Telegram_logo.svg.png',
+      connected: false 
+    }
+  ];
+
+  const fetchConnectedPlatforms = async () => {
+    if (!user?.email || !user?.company) return;
+    
+    setIsLoadingPlatforms(true);
+    try {
+      const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/fetch_connected_accounts', {
+        user_email: user.email,
+        company_name: user.company
+      });
+      
+      if (response.data?.result) {
+        setConnectedPlatforms(response.data.result);
+      }
+    } catch (error) {
+      console.error('Error fetching connected platforms:', error);
+    } finally {
+      setIsLoadingPlatforms(false);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchConnectedPlatforms();
+  }, [user]);
 
   const handleBoldClick = () => {
     if (!textareaRef.current) return;
@@ -95,58 +157,87 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
     setSelectedImages(prev => prev.filter((_, i) => i !== index));
   };
 
-  const showNotification = (type: 'success' | 'error', message: string) => {
-    setNotification({ type, message });
-    setTimeout(() => setNotification(null), 3000);
-  };
+  if (showPreview) {
+    return (
+      <PreviewScreen
+        content={content}
+        image={selectedImages[0]}
+        platform={selectedPlatform}
+        companyName={user?.company || 'Your Company'}
+        onBack={() => setShowPreview(false)}
+      />
+    );
+  }
 
-  const handlePublish = async () => {
-    if (!user?.email) {
-      showNotification('error', 'User email not found');
-      return;
-    }
+  if (showPlatformSelect) {
+    return (
+      <div className="h-screen bg-gradient-to-br from-indigo-50 to-pink-50 flex flex-col">
+        <div className="p-6">
+          <button
+            onClick={() => setShowPlatformSelect(false)}
+            className="flex items-center space-x-2 text-indigo-600 hover:text-indigo-700 mb-6"
+          >
+            <FiArrowLeft className="w-4 h-4" />
+            <span>Back to Editor</span>
+          </button>
 
-    setIsPublishing(true);
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent mb-6">
+              Select Platform to Preview
+            </h2>
 
-    try {
-      const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/post_to_social_media', {
-        user_email: user.email,
-        platform: activePlatform.toLowerCase(),
-        post: content,
-        media_url: selectedImages
-      });
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {platforms.map((platform) => {
+                const isConnected = connectedPlatforms.includes(platform.id);
+                return (
+                  <div
+                    key={platform.id}
+                    className="bg-white rounded-xl p-6 shadow-sm relative group"
+                  >
+                    <div className="absolute top-4 right-4">
+                      <span className={`px-3 py-1 rounded-full text-sm ${
+                        isConnected 
+                          ? 'bg-green-100 text-green-600' 
+                          : 'bg-red-100 text-red-600'
+                      }`}>
+                        {isConnected ? 'Connected' : 'Not Connected'}
+                      </span>
+                    </div>
 
-      if (response.status === 200) {
-        showNotification('success', 'Post successfully published!');
-      }
-    } catch (error: any) {
-      showNotification('error', `Post failed. Please ensure that you have connected ${activePlatform}`);
-    } finally {
-      setIsPublishing(false);
-    }
-  };
+                    <div className="h-20 flex items-center justify-center mb-4">
+                      <img 
+                        src={platform.image} 
+                        alt={platform.name}
+                        className="max-h-full max-w-full object-contain"
+                      />
+                    </div>
 
-  // Platform icons/images mapping
-  const platformImages = {
-    twitter: "https://cdn-icons-png.flaticon.com/512/733/733579.png",
-    facebook: "https://cdn-icons-png.flaticon.com/512/733/733547.png",
-    linkedin: "https://cdn-icons-png.flaticon.com/512/3536/3536505.png"
-  };
+                    <h3 className="text-lg font-semibold text-indigo-900 text-center mb-4">
+                      {platform.name}
+                    </h3>
 
-  const handleNext = () => {
-    const contentWithImages = selectedImages.length > 0 
-      ? `${content}\n\n${selectedImages.map(img => `[IMAGE:${img}]`).join('\n')}`
-      : content;
-    onChange(contentWithImages);
-    onNext();
-  };
+                    <button
+                      onClick={() => {
+                        setSelectedPlatform(platform.id);
+                        setShowPreview(true);
+                      }}
+                      disabled={!isConnected}
+                      className="w-full py-2 bg-gradient-to-r from-indigo-500 to-pink-500 text-white rounded-lg hover:from-indigo-600 hover:to-pink-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Preview
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen bg-gradient-to-br from-indigo-50 to-pink-50 flex flex-col">
-      {notification && (
-        <Notification type={notification.type} message={notification.message} />
-      )}
-
       <div className="p-6">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-6">
@@ -157,23 +248,6 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
               <FiArrowLeft className="w-4 h-4" />
               <span>Back to Platform Selection</span>
             </button>
-            <div className="flex items-center space-x-2">
-              {selectedPlatforms.map((platform) => (
-                <button
-                  key={platform}
-                  onClick={() => setActivePlatform(platform)}
-                  className={`w-10 h-10 rounded-lg overflow-hidden transition-transform ${
-                    activePlatform === platform ? 'ring-2 ring-indigo-500 scale-110' : ''
-                  }`}
-                >
-                  <img 
-                    src={platformImages[platform as keyof typeof platformImages]} 
-                    alt={platform}
-                    className="w-full h-full object-cover"
-                  />
-                </button>
-              ))}
-            </div>
           </div>
 
           <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-sm">
@@ -207,56 +281,45 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
               </button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
-              <div className="space-y-6">
-                <textarea
-                  ref={textareaRef}
-                  value={content}
-                  onChange={(e) => onChange(e.target.value)}
-                  className="w-full min-h-[300px] p-4 rounded-xl border-2 border-indigo-100 focus:border-indigo-300 focus:ring-2 focus:ring-indigo-500/20 transition-all outline-none font-sans text-base resize-none"
-                  placeholder="Write your content here..."
-                />
+            <div className="p-6">
+              <textarea
+                ref={textareaRef}
+                value={content}
+                onChange={(e) => onChange(e.target.value)}
+                className="w-full min-h-[400px] p-4 rounded-xl border-2 border-indigo-100 focus:border-indigo-300 focus:ring-2 focus:ring-indigo-500/20 transition-all outline-none font-sans text-base resize-none"
+                placeholder="Write your content here..."
+              />
 
-                {selectedImages.length > 0 && (
-                  <div className="space-y-3">
-                    <h4 className="font-medium text-indigo-900">Attached Images</h4>
-                    <div className="grid grid-cols-4 gap-4">
-                      {selectedImages.map((image, index) => (
-                        <div
-                          key={index}
-                          className="relative group aspect-square rounded-lg overflow-hidden"
+              {selectedImages.length > 0 && (
+                <div className="mt-6 space-y-3">
+                  <h4 className="font-medium text-indigo-900">Attached Images</h4>
+                  <div className="grid grid-cols-4 gap-4">
+                    {selectedImages.map((image, index) => (
+                      <div
+                        key={index}
+                        className="relative group aspect-square rounded-lg overflow-hidden"
+                      >
+                        <img
+                          src={image}
+                          alt={`Attached ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          onClick={() => removeImage(index)}
+                          className="absolute top-2 right-2 p-1.5 bg-red-500 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
                         >
-                          <img
-                            src={image}
-                            alt={`Attached ${index + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                          <button
-                            onClick={() => removeImage(index)}
-                            className="absolute top-2 right-2 p-1.5 bg-red-500 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <FiX className="w-4 h-4 text-white" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
+                          <FiX className="w-4 h-4 text-white" />
+                        </button>
+                      </div>
+                    ))}
                   </div>
-                )}
-              </div>
-
-              <div className="bg-gray-50 rounded-xl p-6">
-                <PlatformPreview
-                  platform={activePlatform}
-                  content={content}
-                  companyName={user?.company || 'Company Name'}
-                  image={selectedImages[0]}
-                />
-              </div>
+                </div>
+              )}
             </div>
 
             <div className="p-6 border-t border-indigo-100 flex space-x-4">
               <button
-                onClick={handleNext}
+                onClick={onNext}
                 disabled={!isValid || isLoading}
                 className="flex-1 flex items-center justify-center space-x-3 px-8 py-4 bg-gradient-to-r from-indigo-500 to-pink-500 text-white rounded-xl hover:from-indigo-600 hover:to-pink-600 transition-all transform hover:-translate-y-1 disabled:opacity-50 disabled:hover:translate-y-0 font-medium text-lg shadow-xl shadow-indigo-500/25"
               >
@@ -264,21 +327,11 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
                 <FiArrowRight className="w-5 h-5" />
               </button>
               <button
-                onClick={handlePublish}
-                disabled={!isValid || isPublishing}
+                onClick={() => setShowPlatformSelect(true)}
+                disabled={!isValid}
                 className="px-8 py-4 border-2 border-indigo-200 text-indigo-600 rounded-xl hover:bg-indigo-50 transition-colors flex items-center space-x-2"
               >
-                {isPublishing ? (
-                  <>
-                    <FiLoader className="w-5 h-5 animate-spin" />
-                    <span>Publishing...</span>
-                  </>
-                ) : (
-                  <>
-                    <FiSend className="w-5 h-5" />
-                    <span>Publish</span>
-                  </>
-                )}
+                <span>Preview & Publish</span>
               </button>
             </div>
           </div>
