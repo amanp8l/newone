@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { EditorToolbar } from './EditorToolbar';
-import { BlogPreview } from './BlogPreview';
 import { TextSelectionToolbar } from './TextSelectionToolbar';
 
 interface BlogEditorProps {
@@ -21,18 +20,8 @@ export const BlogEditor: React.FC<BlogEditorProps> = ({
   isGenerating,
   onImageClick,
   onAIClick,
-  selectedImage,
-  companyName
 }) => {
   const [showPreview, setShowPreview] = useState(false);
-
-  const handleBoldClick = () => {
-    document.execCommand('bold', false);
-  };
-
-  const handleItalicClick = () => {
-    document.execCommand('italic', false);
-  };
 
   return (
     <div className="flex-1 flex flex-col">
@@ -42,7 +31,7 @@ export const BlogEditor: React.FC<BlogEditorProps> = ({
           onClick={() => setShowPreview(!showPreview)}
           className="px-4 py-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
         >
-          {showPreview ? 'Edit Content' : 'Preview'}
+          
         </button>
       </div>
 
@@ -66,24 +55,20 @@ export const BlogEditor: React.FC<BlogEditorProps> = ({
           </div>
         ) : showPreview ? (
           <div className="overflow-auto h-full">
-            <BlogPreview
-              content={content}
-              image={selectedImage}
-              companyName={companyName}
-            />
+
           </div>
         ) : (
           <>
             <TextSelectionToolbar
-              onBold={handleBoldClick}
-              onItalic={handleItalicClick}
+              onBold={() => document.execCommand('bold', false)}
+              onItalic={() => document.execCommand('italic', false)}
               onAIEdit={onAIClick}
             />
-            <div
-              className="w-full h-full p-4 focus:outline-none overflow-auto"
-              contentEditable
-              dangerouslySetInnerHTML={{ __html: content }}
-              onInput={(e) => onContentChange(e.currentTarget.innerHTML)}
+            <textarea
+              className="flex-1 w-full h-full p-4 rounded-xl border-2 border-indigo-100 focus:border-indigo-300 focus:ring-2 focus:ring-indigo-500/20 transition-all outline-none font-sans text-base resize-none"
+              placeholder="Write your content here..."
+              value={content}
+              onChange={(e) => onContentChange(e.target.value)}
             />
             <div className="p-4 border-t border-indigo-100">
               <button

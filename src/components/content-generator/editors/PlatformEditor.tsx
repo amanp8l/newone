@@ -55,11 +55,11 @@ export const PlatformEditor: React.FC<PlatformEditorProps> = ({
               onItalic={handleItalicClick}
               onAIEdit={onAIClick}
             />
-            <div
-              className="w-full h-full p-4 focus:outline-none overflow-auto"
-              contentEditable
-              dangerouslySetInnerHTML={{ __html: content }}
-              onInput={(e) => onContentChange(e.currentTarget.innerHTML)}
+            <textarea
+              className="flex-1 w-full h-full p-4 rounded-xl border-2 border-indigo-100 focus:border-indigo-300 focus:ring-2 focus:ring-indigo-500/20 transition-all outline-none font-sans text-base resize-none"
+              placeholder="Write your content here..."
+              value={content}
+              onChange={(e) => onContentChange(e.target.value)}
             />
           </>
         )}
