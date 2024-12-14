@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FiArrowLeft, FiCalendar, FiSend, FiX, FiCheck, FiLoader } from 'react-icons/fi';
 import { PlatformPreview } from './PlatformPreview';
 import { useAuthStore } from '../../store/authStore';
+import { backFormatter } from '../../utils/backFormatter';
 import axios from 'axios';
 
 interface PreviewScreenProps {
@@ -21,7 +22,7 @@ const Notification: React.FC<NotificationProps> = ({ type, message }) => (
   <div className="fixed top-6 right-6 bg-white rounded-xl shadow-lg p-4 animate-fadeIn z-50 flex items-center space-x-3 border border-indigo-100">
     <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
       type === 'success' 
-        ? 'bg-gradient-to-br from-indigo-500 to-pink-500' 
+        ? 'bg-gradient-to-br from-indigo-500 to-pink-500'
         : 'bg-red-500'
     }`}>
       {type === 'success' ? (
@@ -141,7 +142,7 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
       // Convert base64 image to URL if image exists and is base64
       if (image) {
         try {
-          if (image.startsWith('data:')) {
+          if (image.startsWith('data:image')) {
             imageUrl = await convertBase64ToUrl(image);
           } else {
             imageUrl = image;
@@ -154,11 +155,12 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
         }
       }
 
-      // Prepare API payload
+      // Prepare API payload with formatted content
+      const formattedContent = backFormatter(content);
       const payload = {
         user_email: user.email,
         platform: platform.toLowerCase(),
-        post: content,
+        post: formattedContent,
         media_url: imageUrl ? [imageUrl] : undefined
       };
 
@@ -201,12 +203,15 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
         }
       }
 
+      // Prepare formatted content
+      const formattedContent = backFormatter(content);
+
       // Prepare schedule data
       const scheduleData = {
         data: {
           user_email: user.email,
           platform: platform.toLowerCase(),
-          post: content,
+          post: formattedContent,
           media_url: imageUrl ? [imageUrl] : undefined
         },
         time: {
@@ -231,7 +236,7 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
           minutes: scheduledDate.getMinutes(),
           platform: platform.toLowerCase(),
           user_email: user.email,
-          content: content,
+          content: formattedContent,
           media: imageUrl ? [imageUrl] : undefined
         };
 

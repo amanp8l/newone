@@ -1,9 +1,9 @@
-import React, { useState, useRef } from 'react';
-import { FiArrowLeft, FiBold, FiItalic, FiImage, FiArrowRight, FiX } from 'react-icons/fi';
+import axios from 'axios';
+import React, { useRef, useState } from 'react';
+import { FiArrowLeft, FiArrowRight, FiImage, FiX } from 'react-icons/fi';
+import { useAuthStore } from '../../store/authStore';
 import { ImagePicker } from './ImagePicker';
 import { PreviewScreen } from './PreviewScreen';
-import { useAuthStore } from '../../store/authStore';
-import axios from 'axios';
 
 interface DraftEditorProps {
   content: string;
@@ -117,38 +117,6 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
     fetchConnectedPlatforms();
   }, [user]);
 
-  const handleBoldClick = () => {
-    if (!textareaRef.current) return;
-    
-    const start = textareaRef.current.selectionStart;
-    const end = textareaRef.current.selectionEnd;
-    const selectedText = content.substring(start, end);
-    
-    if (selectedText) {
-      const newContent = 
-        content.substring(0, start) +
-        `<strong>${selectedText}</strong>` +
-        content.substring(end);
-      onChange(newContent);
-    }
-  };
-
-  const handleItalicClick = () => {
-    if (!textareaRef.current) return;
-    
-    const start = textareaRef.current.selectionStart;
-    const end = textareaRef.current.selectionEnd;
-    const selectedText = content.substring(start, end);
-    
-    if (selectedText) {
-      const newContent = 
-        content.substring(0, start) +
-        `<em>${selectedText}</em>` +
-        content.substring(end);
-      onChange(newContent);
-    }
-  };
-
   const handleImageSelect = (url: string) => {
     setSelectedImages(prev => [...prev, url]);
   };
@@ -253,31 +221,13 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
           <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-sm">
             <div className="flex items-center space-x-4 p-4 border-b border-indigo-100">
               <button
-                onClick={handleBoldClick}
-                className="p-2 hover:bg-indigo-50 rounded-lg transition-colors group relative"
-              >
-                <FiBold className="w-5 h-5 text-indigo-600" />
-                <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-indigo-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                  Make text bold
-                </span>
-              </button>
-              <button
-                onClick={handleItalicClick}
-                className="p-2 hover:bg-indigo-50 rounded-lg transition-colors group relative"
-              >
-                <FiItalic className="w-5 h-5 text-indigo-600" />
-                <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-indigo-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                  Make text italic
-                </span>
-              </button>
-              <button
                 onClick={() => setShowImagePicker(true)}
                 className="p-2 hover:bg-indigo-50 rounded-lg transition-colors group relative"
               >
-                <FiImage className="w-5 h-5 text-indigo-600" />
-                <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-indigo-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                  Add images
-                </span>
+              <div className="relative group flex items-center">
+                <FiImage className="w-5 h-5 text-indigo-600 hover:text-indigo-700" />
+              <span className="ml-2 text-indigo-600 group-hover:text-indigo-700 transition-colors">Add images</span>
+              </div>
               </button>
             </div>
 

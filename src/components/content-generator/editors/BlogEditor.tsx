@@ -57,10 +57,10 @@ export const BlogEditor: React.FC<BlogEditorProps> = ({
                 </div>
               </div>
               <h3 className="text-xl font-semibold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent">
-                Generating Blog Content
+                Generating Content
               </h3>
               <p className="text-indigo-600 text-center">
-                We're crafting your blog content using AI...
+                We're crafting your content using AI...
               </p>
             </div>
           </div>

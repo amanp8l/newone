@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiArrowLeft, FiBold, FiItalic, FiImage, FiZap, FiEye, FiX } from 'react-icons/fi';
+import { FiArrowLeft, FiImage, FiZap, FiEye, FiX } from 'react-icons/fi';
 import { PlatformTabs } from './PlatformTabs';
 import { AIChat } from './AIChat';
 import { ImagePicker } from './ImagePicker';
@@ -93,42 +93,27 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
             />
 
             <div className="flex items-center space-x-2 mb-4 pb-4 border-b border-indigo-100">
-              <button
-                onClick={() => document.execCommand('bold')}
-                className="p-2 hover:bg-indigo-50 rounded-lg transition-colors group relative"
-              >
-                <FiBold className="w-5 h-5 text-indigo-600" />
-                <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-indigo-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                  Make text bold
-                </span>
-              </button>
-              <button
-                onClick={() => document.execCommand('italic')}
-                className="p-2 hover:bg-indigo-50 rounded-lg transition-colors group relative"
-              >
-                <FiItalic className="w-5 h-5 text-indigo-600" />
-                <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-indigo-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                  Make text italic
-                </span>
-              </button>
-              <button
-                onClick={() => setShowImagePicker(true)}
-                className="p-2 hover:bg-indigo-50 rounded-lg transition-colors group relative"
-              >
-                <FiImage className="w-5 h-5 text-indigo-600" />
-                <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-indigo-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                  Add image
-                </span>
-              </button>
-              <button
-                onClick={() => setShowAIChat(!showAIChat)}
-                className="p-2 hover:bg-indigo-50 rounded-lg transition-colors group relative ml-auto"
-              >
-                <FiZap className="w-5 h-5 text-indigo-600" />
-                <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-indigo-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                  Generate with AI
-                </span>
-              </button>
+
+            <div className="flex items-center space-x-2">
+  <button
+    onClick={() => setShowImagePicker(true)}
+    className="p-2 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors group flex items-center"
+  >
+    <FiImage className="w-5 h-5 text-indigo-600 hover:text-indigo-700" />
+    <span className="ml-2 text-indigo-600 hover:text-indigo-700 text-xs transition-colors">
+      Add image
+    </span>
+  </button>
+  <button
+    onClick={() => setShowAIChat(!showAIChat)}
+    className="p-2 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors group flex items-center"
+  >
+    <FiZap className="w-5 h-5 text-indigo-600 hover:text-indigo-700" />
+    <span className="ml-2 text-indigo-600 hover:text-indigo-700 text-xs transition-colors">
+      AI Assistant
+    </span>
+  </button>
+</div>
             </div>
 
             <div className="flex-1 flex flex-col overflow-hidden">

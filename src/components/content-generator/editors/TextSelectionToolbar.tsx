@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FiBold, FiItalic, FiZap } from 'react-icons/fi';
+import { FiZap } from 'react-icons/fi';
 
 interface TextSelectionToolbarProps {
   onBold: () => void;
@@ -8,8 +8,6 @@ interface TextSelectionToolbarProps {
 }
 
 export const TextSelectionToolbar: React.FC<TextSelectionToolbarProps> = ({
-  onBold,
-  onItalic,
   onAIEdit,
 }) => {
   const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
@@ -27,8 +25,8 @@ export const TextSelectionToolbar: React.FC<TextSelectionToolbarProps> = ({
       
       if (rect.width > 0) {
         setPosition({
-          top: rect.top - 40,
-          left: rect.left + (rect.width / 2) - 100
+          top: rect.top - 200,
+          left: rect.left + (rect.width / 2) - 250
         });
       } else {
         setPosition(null);
@@ -49,22 +47,6 @@ export const TextSelectionToolbar: React.FC<TextSelectionToolbarProps> = ({
         left: `${position.left}px`,
       }}
     >
-      <button
-        onClick={onBold}
-        className="p-2 hover:bg-indigo-50 rounded-lg transition-colors flex items-center space-x-2"
-      >
-        <FiBold className="w-4 h-4 text-indigo-600" />
-        <span className="text-sm text-indigo-900">Bold</span>
-      </button>
-      <div className="w-px h-6 bg-indigo-100" />
-      <button
-        onClick={onItalic}
-        className="p-2 hover:bg-indigo-50 rounded-lg transition-colors flex items-center space-x-2"
-      >
-        <FiItalic className="w-4 h-4 text-indigo-600" />
-        <span className="text-sm text-indigo-900">Italic</span>
-      </button>
-      <div className="w-px h-6 bg-indigo-100" />
       <button
         onClick={onAIEdit}
         className="p-2 hover:bg-indigo-50 rounded-lg transition-colors flex items-center space-x-2"
