@@ -220,15 +220,15 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
 
           <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-sm">
             <div className="flex items-center space-x-4 p-4 border-b border-indigo-100">
-              <button
-                onClick={() => setShowImagePicker(true)}
-                className="p-2 hover:bg-indigo-50 rounded-lg transition-colors group relative"
-              >
-              <div className="relative group flex items-center">
-                <FiImage className="w-5 h-5 text-indigo-600 hover:text-indigo-700" />
-              <span className="ml-2 text-indigo-600 group-hover:text-indigo-700 transition-colors">Add images</span>
-              </div>
-              </button>
+            <button
+              onClick={() => setShowImagePicker(true)}
+              className="p-2 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors flex items-center"
+            >
+              <FiImage className="w-5 h-5 text-indigo-600 hover:text-indigo-700" />
+              <span className="ml-2 text-indigo-600 hover:text-indigo-700 text-l transition-colors">
+                Add images
+              </span>
+            </button>
             </div>
 
             <div className="p-6">
