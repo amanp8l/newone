@@ -214,7 +214,7 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
               className="flex items-center space-x-2 text-indigo-600 hover:text-indigo-700"
             >
               <FiArrowLeft className="w-4 h-4" />
-              <span>Back to Platform Selection</span>
+              <span>Back to Home</span>
             </button>
           </div>
 
