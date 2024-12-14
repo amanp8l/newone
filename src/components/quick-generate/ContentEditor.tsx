@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { FiArrowLeft, FiImage, FiZap, FiEye, FiX } from 'react-icons/fi';
 import { PlatformTabs } from './PlatformTabs';
 import { AIChat } from './AIChat';
@@ -33,22 +33,23 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
       ])
     )
   );
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleContentUpdate = (platform: string, content: string) => {
     const formattedContent = formatPlatformContent(content);
-    setPlatformContent(prev => ({
+    setPlatformContent((prev) => ({
       ...prev,
       [platform]: formattedContent
     }));
   };
 
   const handleImageSelect = (url: string) => {
-    setSelectedImages(prev => [...prev, url]);
+    setSelectedImages((prev) => [...prev, url]);
     setShowImagePicker(false);
   };
 
   const handleImageDelete = (index: number) => {
-    setSelectedImages(prev => prev.filter((_, i) => i !== index));
+    setSelectedImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   if (showPreview) {
@@ -84,7 +85,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
 
       <div className="flex-1 p-6 flex gap-6 overflow-hidden">
         <div className={`flex-1 transition-all duration-300 flex flex-col ${showAIChat ? 'w-2/3' : 'w-full'}`}>
-          <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-sm p-6 flex flex-col overflow-hidden">
+          <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-sm p-6 flex flex-col overflow-hidden h-full">
             <PlatformTabs
               platforms={selectedPlatforms}
               activePlatform={activePlatform}
@@ -93,40 +94,38 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
             />
 
             <div className="flex items-center space-x-2 mb-4 pb-4 border-b border-indigo-100">
-
-            <div className="flex items-center space-x-2">
-  <button
-    onClick={() => setShowImagePicker(true)}
-    className="p-2 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors group flex items-center"
-  >
-    <FiImage className="w-5 h-5 text-indigo-600 hover:text-indigo-700" />
-    <span className="ml-2 text-indigo-600 hover:text-indigo-700 text-xs transition-colors">
-      Add image
-    </span>
-  </button>
-  <button
-    onClick={() => setShowAIChat(!showAIChat)}
-    className="p-2 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors group flex items-center"
-  >
-    <FiZap className="w-5 h-5 text-indigo-600 hover:text-indigo-700" />
-    <span className="ml-2 text-indigo-600 hover:text-indigo-700 text-xs transition-colors">
-      AI Assistant
-    </span>
-  </button>
-</div>
+              <button
+                onClick={() => setShowImagePicker(true)}
+                className="p-2 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors group flex items-center"
+              >
+                <FiImage className="w-5 h-5 text-indigo-600 hover:text-indigo-700" />
+                <span className="ml-2 text-indigo-600 hover:text-indigo-700 text-xs transition-colors">
+                  Add image
+                </span>
+              </button>
+              <button
+                onClick={() => setShowAIChat(!showAIChat)}
+                className="p-2 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors group flex items-center"
+              >
+                <FiZap className="w-5 h-5 text-indigo-600 hover:text-indigo-700" />
+                <span className="ml-2 text-indigo-600 hover:text-indigo-700 text-xs transition-colors">
+                  AI Assistant
+                </span>
+              </button>
             </div>
 
             <div className="flex-1 flex flex-col overflow-hidden">
-              <div
-                className="flex-1 w-full focus:outline-none overflow-auto mb-4"
-                contentEditable
-                dangerouslySetInnerHTML={{ __html: platformContent[activePlatform] || '' }}
-                onInput={(e) => handleContentUpdate(activePlatform, e.currentTarget.innerHTML)}
+              <textarea
+                ref={textareaRef}
+                value={platformContent[activePlatform] || ''}
+                onChange={(e) => handleContentUpdate(activePlatform, e.target.value)}
+                className="flex-1 w-full h-full p-4 rounded-xl border-2 border-indigo-100 focus:border-indigo-300 focus:ring-2 focus:ring-indigo-500/20 transition-all outline-none font-sans text-base resize-none"
+                placeholder="Write your content here..."
               />
 
               {selectedImages.length > 0 && (
-                <div className="border-t border-indigo-100 pt-4">
-                  <h3 className="text-sm font-medium text-indigo-900 mb-3">Attached Images</h3>
+                <div className="mt-6 space-y-3">
+                  <h4 className="font-medium text-indigo-900">Attached Images</h4>
                   <div className="grid grid-cols-6 gap-4">
                     {selectedImages.map((image, index) => (
                       <div
@@ -140,7 +139,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
                         />
                         <button
                           onClick={() => handleImageDelete(index)}
-                          className="absolute top-2 right-2 p-1 bg-red-500 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute top-2 right-2 p-1.5 bg-red-500 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <FiX className="w-4 h-4 text-white" />
                         </button>
