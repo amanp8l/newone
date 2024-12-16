@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { FiSend, FiLoader } from 'react-icons/fi';
 import axios from 'axios';
+import { formatPlatformContent } from '../../../utils/platformFormatter';
 
 interface Message {
   type: 'user' | 'ai';
@@ -70,7 +71,10 @@ export const AIChat: React.FC<AIChatProps> = ({
 
       const response = await axios.post(`https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io${endpoint}`, payload);
       
-      onContentUpdate(response.data);
+      // Format the generated content before updating
+      const formattedContent = formatPlatformContent(response.data);
+      onContentUpdate(formattedContent);
+      
       setMessages(prev => [...prev, {
         type: 'ai',
         content: 'I\'ve updated your content based on your feedback. Is there anything else you\'d like me to help you with?'

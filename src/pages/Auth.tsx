@@ -62,7 +62,7 @@ export const Auth: React.FC = () => {
               {isLogin ? 'Welcome back!' : 'Create account'}
             </h1>
             <p className="text-lg text-indigo-600">
-              {isLogin ? 'Sign in to continue to SocialHub' : 'Get started with SocialHub'}
+              {isLogin ? 'Sign in to continue to Kimmchi' : 'Get started with Kimmchi'}
             </p>
           </div>
 
@@ -178,7 +178,7 @@ export const Auth: React.FC = () => {
             Transform Your Social Media Presence
           </h2>
           <p className="text-xl mb-10 text-white/90 leading-relaxed">
-            Create, schedule, and manage your social media content with ease. Join thousands of businesses using SocialHub to grow their online presence.
+            Create, schedule, and manage your social media content with ease. Join thousands of businesses using Kimmchi to grow their online presence.
           </p>
           <div className="flex items-center space-x-6">
             <div className="flex -space-x-4">
