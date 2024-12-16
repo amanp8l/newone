@@ -9,6 +9,7 @@ interface PlatformEditorProps {
   isGenerating: boolean;
   onImageClick: () => void;
   onAIClick: () => void;
+  selectedImage: string[] | null;
 }
 
 export const PlatformEditor: React.FC<PlatformEditorProps> = ({

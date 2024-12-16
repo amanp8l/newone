@@ -60,7 +60,10 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
   const [showImagePicker, setShowImagePicker] = useState(false);
   const [showAIChat, setShowAIChat] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  
+  // Updated to support multiple images
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  
   const [isGenerating, setIsGenerating] = useState(false);
   const [platformsEnabled, setPlatformsEnabled] = useState(false);
   const [notification] = useState<NotificationProps | null>(null);
@@ -68,7 +71,6 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
   useEffect(() => {
     generateBlogContent();
   }, []);
-
 
   const generateBlogContent = async () => {
     setIsGenerating(true);
@@ -127,11 +129,21 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
     }
   };
 
+  // New image handling methods
+  const handleImageSelect = (url: string) => {
+    setSelectedImages((prev) => [...prev, url]);
+    setShowImagePicker(false);
+  };
+
+  const handleImageDelete = (index: number) => {
+    setSelectedImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
   if (showPreview) {
     return (
       <PreviewScreen
         content={activeTab === 'blog' ? blogContent : platformContent[activeTab]}
-        image={selectedImage}
+        image={selectedImages[0]}
         platform={activeTab}
         companyName={formData.companyName}
         onBack={() => setShowPreview(false)}
@@ -200,7 +212,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
                 isGenerating={isGenerating}
                 onImageClick={() => setShowImagePicker(true)}
                 onAIClick={() => setShowAIChat(true)}
-                selectedImage={selectedImage}
+                selectedImage={selectedImages}
                 companyName={formData.companyName}
               />
             ) : (
@@ -211,7 +223,35 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
                 isGenerating={isGenerating}
                 onImageClick={() => setShowImagePicker(true)}
                 onAIClick={() => setShowAIChat(true)}
+                selectedImage={selectedImages}
               />
+            )}
+
+            {/* Image Display Section */}
+            {selectedImages.length > 0 && (
+              <div className="mt-6 space-y-3">
+                <h4 className="font-medium text-indigo-900">Attached Images</h4>
+                <div className="grid grid-cols-6 gap-4">
+                  {selectedImages.map((image, index) => (
+                    <div
+                      key={index}
+                      className="relative group aspect-square rounded-lg overflow-hidden"
+                    >
+                      <img
+                        src={image}
+                        alt={`Attached ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        onClick={() => handleImageDelete(index)}
+                        className="absolute top-2 right-2 p-1.5 bg-red-500 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <FiX className="w-4 h-4 text-white" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
         </div>
@@ -223,7 +263,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
               activePlatform={activeTab}
               currentContent={activeTab === 'blog' ? blogContent : platformContent[activeTab]}
               onContentUpdate={(content) => handleContentUpdate(activeTab, content)}
-              onImageSelect={(url) => setSelectedImage(url)}
+              onImageSelect={handleImageSelect}
             />
           </div>
         )}
@@ -232,7 +272,8 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
       {showImagePicker && (
         <ImagePicker
           onClose={() => setShowImagePicker(false)}
-          onImageSelect={(url) => setSelectedImage(url)}
+          onImageSelect={handleImageSelect}
+          allowMultiple={true}
         />
       )}
     </div>

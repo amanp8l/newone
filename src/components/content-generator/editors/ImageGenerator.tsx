@@ -75,7 +75,7 @@ export const ImageGenerator: React.FC<ImageGeneratorProps> = ({
           <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-pink-500 rounded-full flex items-center justify-center">
             <FiCheck className="w-5 h-5 text-white" />
           </div>
-          <p className="text-indigo-900">Image generated successfully! Check the preview section.</p>
+          <p className="text-indigo-900">Image generated successfully!</p>
         </div>
       )}
 

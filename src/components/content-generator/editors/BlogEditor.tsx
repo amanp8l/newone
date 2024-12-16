@@ -9,7 +9,7 @@ interface BlogEditorProps {
   isGenerating: boolean;
   onImageClick: () => void;
   onAIClick: () => void;
-  selectedImage: string | null;
+  selectedImage: string[] | null;
   companyName: string;
 }
 
