@@ -1,5 +1,7 @@
 import React from 'react';
-import { FiInstagram, FiTwitter, FiLinkedin, FiFacebook } from 'react-icons/fi';
+import { FiInstagram, FiLinkedin, FiFacebook } from 'react-icons/fi';
+import { FaXTwitter } from "react-icons/fa6";
+
 
 interface ScheduledPostProps {
   content: string;
@@ -11,7 +13,7 @@ const getPlatformIcon = (platform: string) => {
     case 'instagram':
       return <FiInstagram className="w-4 h-4" />;
     case 'twitter':
-      return <FiTwitter className="w-4 h-4" />;
+      return <FaXTwitter className="w-4 h-4" />;
     case 'linkedin':
       return <FiLinkedin className="w-4 h-4" />;
     case 'facebook':

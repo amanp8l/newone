@@ -1,5 +1,7 @@
 import React from 'react';
-import { FiTwitter, FiFacebook, FiLinkedin, FiArrowRight, FiCheck, FiArrowLeft, FiLoader } from 'react-icons/fi';
+import {  FiFacebook, FiLinkedin, FiArrowRight, FiCheck, FiArrowLeft, FiLoader } from 'react-icons/fi';
+import { FaXTwitter } from "react-icons/fa6";
+
 import { Platform } from './types';
 
 interface PlatformSelectorProps {
@@ -18,7 +20,7 @@ export const PlatformSelector: React.FC<PlatformSelectorProps> = ({
   isGenerating
 }) => {
   const platforms: Platform[] = [
-    { id: 'twitter', name: 'Twitter', icon: FiTwitter, connected: true },
+    { id: 'twitter', name: 'X (Twitter)', icon: FaXTwitter, connected: true },
     { id: 'facebook', name: 'Facebook', icon: FiFacebook, connected: true },
     { id: 'linkedin', name: 'LinkedIn', icon: FiLinkedin, connected: true },
   ];
