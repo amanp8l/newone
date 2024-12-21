@@ -1,8 +1,9 @@
 import axios from 'axios';
 import React, { useRef, useState } from 'react';
-import { FiArrowLeft, FiArrowRight, FiImage, FiX } from 'react-icons/fi';
+import { FiArrowLeft, FiArrowRight, FiImage, FiX, FiVideo, FiFile } from 'react-icons/fi';
 import { useAuthStore } from '../../store/authStore';
 import { ImagePicker } from './ImagePicker';
+import { VideoPicker } from './VideoPicker';
 import { PreviewScreen } from './PreviewScreen';
 
 interface DraftEditorProps {
@@ -34,13 +35,17 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
 }) => {
   const { user } = useAuthStore();
   const [showImagePicker, setShowImagePicker] = useState(false);
+  const [showVideoPicker, setShowVideoPicker] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [selectedVideos, setSelectedVideos] = useState<string[]>([]);
+  const [selectedPdfs, setSelectedPdfs] = useState<string[]>([]);
   const [showPlatformSelect, setShowPlatformSelect] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<string>('');
   const [connectedPlatforms, setConnectedPlatforms] = useState<string[]>([]);
   const [, setIsLoadingPlatforms] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const pdfInputRef = useRef<HTMLInputElement>(null);
 
   const platforms: Platform[] = [
     { 
@@ -123,6 +128,32 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
 
   const removeImage = (index: number) => {
     setSelectedImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handlePdfUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    Array.from(files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setSelectedPdfs(prev => [...prev, result]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleVideoSelect = (url: string) => {
+    setSelectedVideos(prev => [...prev, url]);
+  };
+
+  const removeVideo = (index: number) => {
+    setSelectedVideos(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const removePdf = (index: number) => {
+    setSelectedPdfs(prev => prev.filter((_, i) => i !== index));
   };
 
   if (showPreview) {
@@ -220,15 +251,41 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
 
           <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-sm">
             <div className="flex items-center space-x-4 p-4 border-b border-indigo-100">
-            <button
-              onClick={() => setShowImagePicker(true)}
-              className="p-2 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors flex items-center"
-            >
-              <FiImage className="w-5 h-5 text-indigo-600 hover:text-indigo-700" />
-              <span className="ml-2 text-indigo-600 hover:text-indigo-700 text-l transition-colors">
-                Add images
-              </span>
-            </button>
+              <button
+                onClick={() => setShowImagePicker(true)}
+                className="p-2 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors flex items-center"
+              >
+                <FiImage className="w-5 h-5 text-indigo-600 hover:text-indigo-700" />
+                <span className="ml-2 text-indigo-600 hover:text-indigo-700 text-l transition-colors">
+                  Add images
+                </span>
+              </button>
+              <button
+                onClick={() => setShowVideoPicker(true)}
+                className="p-2 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors flex items-center"
+              >
+                <FiVideo className="w-5 h-5 text-indigo-600 hover:text-indigo-700" />
+                <span className="ml-2 text-indigo-600 hover:text-indigo-700 text-l transition-colors">
+                  Add videos
+                </span>
+              </button>
+              <button
+                onClick={() => pdfInputRef.current?.click()}
+                className="p-2 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors flex items-center"
+              >
+                <FiFile className="w-5 h-5 text-indigo-600 hover:text-indigo-700" />
+                <span className="ml-2 text-indigo-600 hover:text-indigo-700 text-l transition-colors">
+                  Add PDF
+                </span>
+              </button>
+              <input
+                ref={pdfInputRef}
+                type="file"
+                accept=".pdf"
+                onChange={handlePdfUpload}
+                className="hidden"
+                multiple
+              />
             </div>
 
             <div className="p-6">
@@ -265,6 +322,55 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
                   </div>
                 </div>
               )}
+
+              {selectedVideos.length > 0 && (
+                <div className="mt-6 space-y-3">
+                  <h4 className="font-medium text-indigo-900">Attached Videos</h4>
+                  <div className="grid grid-cols-4 gap-4">
+                    {selectedVideos.map((video, index) => (
+                      <div
+                        key={index}
+                        className="relative group aspect-video rounded-lg overflow-hidden"
+                      >
+                        <video
+                          src={video}
+                          className="w-full h-full object-cover"
+                          controls
+                        />
+                        <button
+                          onClick={() => removeVideo(index)}
+                          className="absolute top-2 right-2 p-1.5 bg-red-500 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <FiX className="w-4 h-4 text-white" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {selectedPdfs.length > 0 && (
+                <div className="mt-6 space-y-3">
+                  <h4 className="font-medium text-indigo-900">Attached PDFs</h4>
+                  <div className="grid grid-cols-4 gap-4">
+                    {selectedPdfs.map((_pdf, index) => (
+                      <div
+                        key={index}
+                        className="relative group bg-indigo-50 rounded-lg p-4"
+                      >
+                        <FiFile className="w-8 h-8 text-indigo-600 mb-2" />
+                        <span className="text-sm text-indigo-900">PDF Document {index + 1}</span>
+                        <button
+                          onClick={() => removePdf(index)}
+                          className="absolute top-2 right-2 p-1.5 bg-red-500 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <FiX className="w-4 h-4 text-white" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="p-6 border-t border-indigo-100 flex space-x-4">
@@ -292,6 +398,14 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
         <ImagePicker
           onClose={() => setShowImagePicker(false)}
           onImageSelect={handleImageSelect}
+          allowMultiple={true}
+        />
+      )}
+
+      {showVideoPicker && (
+        <VideoPicker
+          onClose={() => setShowVideoPicker(false)}
+          onVideoSelect={handleVideoSelect}
           allowMultiple={true}
         />
       )}
