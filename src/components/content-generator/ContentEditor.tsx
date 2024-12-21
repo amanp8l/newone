@@ -146,8 +146,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
         image={selectedImages[0]}
         platform={activeTab}
         companyName={formData.companyName}
-        onBack={() => setShowPreview(false)}
-      />
+        onBack={() => setShowPreview(false)} video={null} pdf={null}      />
     );
   }
 
@@ -210,10 +209,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
                 onContentChange={(content) => handleContentUpdate('blog', content)}
                 onNext={generatePlatformContent}
                 isGenerating={isGenerating}
-                onImageClick={() => setShowImagePicker(true)}
                 onAIClick={() => setShowAIChat(true)}
-                selectedImage={selectedImages}
-                companyName={formData.companyName}
               />
             ) : (
               <PlatformEditor
