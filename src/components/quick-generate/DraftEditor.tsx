@@ -161,6 +161,8 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
       <PreviewScreen
         content={content}
         image={selectedImages[0]}
+        video={selectedVideos[0]}
+        pdf={selectedPdfs[0]}
         platform={selectedPlatform}
         companyName={user?.company || 'Your Company'}
         onBack={() => setShowPreview(false)}

@@ -8,6 +8,8 @@ import axios from 'axios';
 interface PreviewScreenProps {
   content: string;
   image: string | null;
+  video: string | null;
+  pdf: string | null;
   platform: string;
   companyName: string;
   onBack: () => void;
@@ -102,6 +104,8 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({ onClose, onSchedule }) =>
 export const PreviewScreen: React.FC<PreviewScreenProps> = ({
   content,
   image,
+  video,
+  pdf,
   platform,
   companyName,
   onBack
@@ -138,6 +142,8 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
 
     try {
       let imageUrl: string | null = null;
+      let videoUrl: string | null = null;
+      let pdfUrl: string | null = null;
       
       // Convert base64 image to URL if image exists and is base64
       if (image) {
@@ -155,13 +161,43 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
         }
       }
 
+      // Convert base64 video to URL if video exists
+      if (video && video.startsWith('data:video')) {
+        try {
+          const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/generate_url_for_video', {
+            b64_string: video.split(',')[1]
+          });
+          videoUrl = response.data;
+        } catch (error) {
+          console.error('Error converting video:', error);
+          showNotification('error', 'Failed to process video');
+          setIsPublishing(false);
+          return;
+        }
+      }
+
+      // Convert base64 PDF to URL if PDF exists
+      if (pdf && pdf.startsWith('data:application')) {
+        try {
+          const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/generate_url_for_pdf', {
+            b64_string: pdf.split(',')[1]
+          });
+          pdfUrl = response.data;
+        } catch (error) {
+          console.error('Error converting PDF:', error);
+          showNotification('error', 'Failed to process PDF');
+          setIsPublishing(false);
+          return;
+        }
+      }
+
       // Prepare API payload with formatted content
       const formattedContent = backFormatter(content);
       const payload = {
         user_email: user.email,
         platform: platform.toLowerCase(),
         post: formattedContent,
-        media_url: imageUrl ? [imageUrl] : undefined
+        media_url: [imageUrl, videoUrl, pdfUrl].filter(Boolean)
       };
 
       const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/post_to_social_media', payload);
@@ -310,6 +346,8 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
             content={content}
             companyName={companyName}
             image={image}
+            video={video}
+            pdf={pdf}
           />
         </div>
       </div>

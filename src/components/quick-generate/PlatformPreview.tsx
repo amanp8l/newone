@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiHeart, FiMessageCircle, FiRepeat, FiShare2, FiThumbsUp } from 'react-icons/fi';
+import { FiHeart, FiMessageCircle, FiRepeat, FiShare2, FiThumbsUp, FiFile } from 'react-icons/fi';
 import { PreviewPlatformContent } from '../../utils/previewFormatter';
 
 interface PlatformPreviewProps {
@@ -7,6 +7,8 @@ interface PlatformPreviewProps {
   content: string;
   companyName: string;
   image: string | null;
+  video: string | null;
+  pdf: string | null;
 }
 
 export const PlatformPreview: React.FC<PlatformPreviewProps> = ({
@@ -14,6 +16,8 @@ export const PlatformPreview: React.FC<PlatformPreviewProps> = ({
   content,
   companyName,
   image,
+  video,
+  pdf
 }) => {
   // Format content for the specific platform
   const formattedContent = PreviewPlatformContent(content);
@@ -44,6 +48,20 @@ export const PlatformPreview: React.FC<PlatformPreviewProps> = ({
             {image && (
               <div className="mt-3 rounded-xl overflow-hidden border border-gray-100">
                 <img src={image} alt="Post" className="w-full h-auto" />
+              </div>
+            )}
+            {video && (
+              <div className="mt-3 rounded-xl overflow-hidden border border-gray-100">
+                <video src={video} controls className="w-full h-auto" />
+              </div>
+            )}
+            {pdf && (
+              <div className="mt-3 p-4 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center space-x-3">
+                <FiFile className="w-6 h-6 text-indigo-600" />
+                <div>
+                  <span className="text-sm font-medium text-indigo-900">Attached PDF</span>
+                  <p className="text-xs text-indigo-600">Click to view document</p>
+                </div>
               </div>
             )}
             <div className="flex items-center justify-between mt-4 text-gray-500">
@@ -143,6 +161,20 @@ export const PlatformPreview: React.FC<PlatformPreviewProps> = ({
           {image && (
             <div className="mt-3 -mx-4 border-t border-b border-gray-100">
               <img src={image} alt="Post" className="w-full h-auto" />
+            </div>
+          )}
+          {video && (
+            <div className="mt-3 -mx-4 border-t border-b border-gray-100">
+              <video src={video} controls className="w-full h-auto" />
+            </div>
+          )}
+          {pdf && (
+            <div className="mt-3 p-4 bg-indigo-50 border border-indigo-100 rounded-lg flex items-center space-x-3">
+              <FiFile className="w-6 h-6 text-indigo-600" />
+              <div>
+                <span className="text-sm font-medium text-indigo-900">Attached PDF</span>
+                <p className="text-xs text-indigo-600">Click to view document</p>
+              </div>
             </div>
           )}
         </div>

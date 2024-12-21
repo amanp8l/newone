@@ -89,6 +89,8 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
       <PreviewScreen
         content={platformContent[activePlatform]}
         image={selectedImages[0]}
+        video={selectedVideos[0]}
+        pdf={selectedPdfs[0]}
         platform={activePlatform}
         companyName={user?.company || 'Your Company'}
         onBack={() => setShowPreview(false)}
