@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { EditorToolbar } from './EditorToolbar';
+import { FiZap } from 'react-icons/fi';
 import { TextSelectionToolbar } from './TextSelectionToolbar';
 
 interface BlogEditorProps {
@@ -7,18 +7,30 @@ interface BlogEditorProps {
   onContentChange: (content: string) => void;
   onNext: () => void;
   isGenerating: boolean;
-  onImageClick: () => void;
   onAIClick: () => void;
-  selectedImage: string[] | null;
-  companyName: string;
 }
+
+// EditorToolbar component with the specified button styling
+const EditorToolbar: React.FC<{ onAIClick: () => void }> = ({ onAIClick }) => (
+  <div className="flex items-center space-x-2">
+    <button
+      onClick={onAIClick}
+      className="p-2 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors group flex items-center"
+      title="AI Assistant"
+    >
+      <FiZap className="w-5 h-5 text-indigo-600 hover:text-indigo-700" />
+      <span className="ml-2 text-indigo-600 hover:text-indigo-700 text-xs transition-colors">
+        AI Assistant
+      </span>
+    </button>
+  </div>
+);
 
 export const BlogEditor: React.FC<BlogEditorProps> = ({
   content,
   onContentChange,
   onNext,
   isGenerating,
-  onImageClick,
   onAIClick,
 }) => {
   const [showPreview, setShowPreview] = useState(false);
@@ -26,12 +38,11 @@ export const BlogEditor: React.FC<BlogEditorProps> = ({
   return (
     <div className="flex-1 flex flex-col">
       <div className="flex justify-between items-center mb-4">
-        <EditorToolbar onImageClick={onImageClick} onAIClick={onAIClick} />
+        <EditorToolbar onAIClick={onAIClick} />
         <button
           onClick={() => setShowPreview(!showPreview)}
           className="px-4 py-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
         >
-          
         </button>
       </div>
 
@@ -55,7 +66,6 @@ export const BlogEditor: React.FC<BlogEditorProps> = ({
           </div>
         ) : showPreview ? (
           <div className="overflow-auto h-full">
-
           </div>
         ) : (
           <>
