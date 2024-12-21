@@ -13,6 +13,7 @@ import { Pricing } from './pages/Pricing';
 import { Help } from './pages/Help';
 import { Platforms } from './pages/Platforms';
 import { Calendar } from './pages/Calendar';
+import { Trends } from './pages/Trends';
 
 const PrivateRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
@@ -34,6 +35,7 @@ export const App: React.FC = () => {
               <Route path="/" element={<PrivateRoute element={<Home />} />} />
               <Route path="/ai-playground" element={<PrivateRoute element={<AIPlayground />} />} />
               <Route path="/brands" element={<PrivateRoute element={<Brands />} />} />
+              <Route path="/trends" element={<PrivateRoute element={<Trends />} />} />
               <Route path="/platforms" element={<PrivateRoute element={<Platforms />} />} />
               <Route path="/analytics" element={<PrivateRoute element={<ComingSoon title="Analytics" />} />} />
               <Route path="/calendar" element={<PrivateRoute element={<Calendar />} />} />

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FiHome, FiZap, FiPieChart, FiCalendar, FiBriefcase, FiHelpCircle, FiShare2 } from 'react-icons/fi';
+import { FiHome, FiZap, FiPieChart, FiCalendar, FiBriefcase, FiHelpCircle, FiShare2, FiTrendingUp } from 'react-icons/fi';
 
 export const Sidebar: React.FC = () => {
   const navigate = useNavigate();
@@ -9,6 +9,7 @@ export const Sidebar: React.FC = () => {
   const menuItems = [
     { icon: <FiHome />, text: "Home", path: "/" },
     { icon: <FiBriefcase />, text: "Brands", path: "/brands" },
+    { icon: <FiTrendingUp />, text: "Trends", path: "/trends" },
     { icon: <FiZap />, text: "AI Agents", path: "/ai-playground" },
     { icon: <FiShare2 />, text: "Platforms", path: "/platforms" },
     { icon: <FiPieChart />, text: "Analytics", path: "/analytics" },
@@ -17,17 +18,9 @@ export const Sidebar: React.FC = () => {
   ];
 
   const handleNavigation = (path: string) => {
-    // If trying to navigate to home page
-    if (path === '/') {
-      // If already on home page, do a full page reload
-      if (location.pathname === '/') {
-        window.location.href = '/';
-      } else {
-        // Otherwise, navigate to home page
-        navigate('/');
-      }
+    if (path === '/' && location.pathname === '/') {
+      window.location.href = '/';
     } else {
-      // For other pages, use standard navigation
       navigate(path);
     }
   };
@@ -61,15 +54,6 @@ export const Sidebar: React.FC = () => {
           ))}
         </div>
       </nav>
-
-      {/* <div className="p-6">
-        <button 
-          onClick={() => navigate('/pricing')}
-          className="w-full bg-gradient-to-r from-indigo-500 to-pink-500 text-white py-2.5 font-medium hover:from-indigo-600 hover:to-pink-600 transition-colors shadow-lg shadow-indigo-500/25 rounded-xl"
-        >
-          Upgrade Pro
-        </button>
-      </div> */}
     </div>
   );
 };
