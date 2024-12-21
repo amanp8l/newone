@@ -29,7 +29,11 @@ export const PlatformEditor: React.FC<PlatformEditorProps> = ({
 
   return (
     <div className="flex-1 flex flex-col">
-      <EditorToolbar onImageClick={onImageClick} onAIClick={onAIClick} />
+      <EditorToolbar onImageClick={onImageClick} onAIClick={onAIClick} onVideoClick={function (): void {
+        throw new Error('Function not implemented.');
+      } } onPdfClick={function (): void {
+        throw new Error('Function not implemented.');
+      } } />
 
       <div className="flex-1 relative">
         {isGenerating ? (
