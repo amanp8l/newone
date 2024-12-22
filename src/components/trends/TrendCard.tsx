@@ -10,15 +10,12 @@ interface TrendCardProps {
 
 export const TrendCard: React.FC<TrendCardProps> = ({ trend, onClick, index }) => {
   const getYoutubeEmbedUrl = (url: string) => {
-    // Convert YouTube URL to embed URL
     const videoId = url.split('v=')[1]?.split('&')[0];
     return `https://www.youtube.com/embed/${videoId}`;
   };
 
   return (
-    <div 
-      className="group relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-[1.02]"
-    >
+    <div className="group relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-[1.02] flex flex-col h-full">
       {/* Rank Badge */}
       <div className="absolute top-4 left-4 z-20">
         <div className="flex items-center space-x-2 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full shadow-lg">
@@ -45,7 +42,7 @@ export const TrendCard: React.FC<TrendCardProps> = ({ trend, onClick, index }) =
         )}
       </div>
 
-      <div className="p-6">
+      <div className="p-6 flex flex-col flex-grow">
         <div className="flex items-center space-x-2 mb-3">
           <div className="px-3 py-1 bg-gradient-to-r from-indigo-50 to-pink-50 rounded-full">
             <span className="text-xs font-medium bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent">
@@ -79,16 +76,18 @@ export const TrendCard: React.FC<TrendCardProps> = ({ trend, onClick, index }) =
           </div>
         </div>
 
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onClick();
-          }}
-          className="w-full py-2.5 px-4 bg-gradient-to-r from-indigo-100 to-pink-100 hover:from-indigo-200 hover:to-pink-200 text-transparent bg-clip-text font-medium rounded-lg transition-all flex items-center justify-center space-x-2 group/button border-2 border-transparent hover:border-indigo-200"
-        >
-          <FiBarChart2 className="w-4 h-4 text-indigo-500 group-hover/button:text-indigo-600" />
-          <span className="bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text">View Insights</span>
-        </button>
+        <div className="mt-auto">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick();
+            }}
+            className="w-full py-2.5 px-4 bg-gradient-to-r from-indigo-100 to-pink-100 hover:from-indigo-200 hover:to-pink-200 text-transparent bg-clip-text font-medium rounded-lg transition-all flex items-center justify-center space-x-2 group/button border-2 border-transparent hover:border-indigo-200"
+          >
+            <FiBarChart2 className="w-4 h-4 text-indigo-500 group-hover/button:text-indigo-600" />
+            <span className="bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text">View Insights</span>
+          </button>
+        </div>
       </div>
     </div>
   );
