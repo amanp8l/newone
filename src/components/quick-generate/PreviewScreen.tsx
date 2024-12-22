@@ -161,13 +161,16 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
         }
       }
 
-      // Convert base64 video to URL if video exists
-      if (video && video.startsWith('data:video')) {
+      if (video) {
         try {
-          const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/generate_url_for_video', {
-            b64_string: video.split(',')[1]
-          });
-          videoUrl = response.data;
+          if (video.startsWith('data:video')) {
+            const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/generate_url_for_video', {
+              b64_string: video.split(',')[1]
+            });
+            videoUrl = response.data;
+          } else {
+            videoUrl = video;
+          }
         } catch (error) {
           console.error('Error converting video:', error);
           showNotification('error', 'Failed to process video');
@@ -175,7 +178,6 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
           return;
         }
       }
-
       // Convert base64 PDF to URL if PDF exists
       if (pdf && pdf.startsWith('data:application')) {
         try {
