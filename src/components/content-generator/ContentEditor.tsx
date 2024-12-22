@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+
+
+import React, { useState, useEffect, useRef } from 'react';
 import { FiX, FiCheck, FiFile } from 'react-icons/fi';
 import { BlogEditor } from './editors/BlogEditor';
 import { PlatformEditor } from './editors/PlatformEditor';
@@ -51,6 +53,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
   onBack,
 }) => {
   useAuthStore();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState<'blog' | 'twitter' | 'facebook' | 'linkedin'>('blog');
   const [blogContent, setBlogContent] = useState('');
   const [platformContent, setPlatformContent] = useState({
@@ -63,7 +66,6 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
   const [showAIChat, setShowAIChat] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   
-  // Updated to support multiple images
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [selectedVideos, setSelectedVideos] = useState<string[]>([]);
   const [selectedPdfs, setSelectedPdfs] = useState<string[]>([]);
@@ -133,7 +135,6 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
     }
   };
 
-  // New image handling methods
   const handleImageSelect = (url: string) => {
     setSelectedImages((prev) => [...prev, url]);
     setShowImagePicker(false);
@@ -144,18 +145,29 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
     setShowVideoPicker(false);
   };
 
+  const handlePdfClick = () => {
+    fileInputRef.current?.click();
+  };
+
   const handlePdfUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
 
     Array.from(files).forEach(file => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        setSelectedPdfs(prev => [...prev, result]);
-      };
-      reader.readAsDataURL(file);
+      if (file.type === 'application/pdf') {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const result = e.target?.result as string;
+          setSelectedPdfs(prev => [...prev, result]);
+        };
+        reader.readAsDataURL(file);
+      }
     });
+
+    // Clear the input value to allow selecting the same file again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleImageDelete = (index: number) => {
@@ -229,6 +241,15 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
               ))}
             </div>
 
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handlePdfUpload}
+              accept="application/pdf"
+              multiple
+              className="hidden"
+            />
+
             {activeTab === 'blog' ? (
               <BlogEditor
                 content={blogContent}
@@ -245,7 +266,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
                 isGenerating={isGenerating}
                 onImageClick={() => setShowImagePicker(true)}
                 onVideoClick={() => setShowVideoPicker(true)}
-                onPdfClick={() => handlePdfUpload}
+                onPdfClick={handlePdfClick}
                 onAIClick={() => setShowAIChat(true)}
                 selectedImage={selectedImages}
                 selectedVideos={selectedVideos}
@@ -253,7 +274,6 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
               />
             )}
 
-            {/* Image Display Section */}
             {selectedImages.length > 0 && (
               <div className="mt-6 space-y-3">
                 <h4 className="font-medium text-indigo-900">Attached Images</h4>
@@ -351,7 +371,6 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
           allowMultiple={true}
         />
       )}
-      
       {showVideoPicker && (
         <VideoPicker
           onClose={() => setShowVideoPicker(false)}
