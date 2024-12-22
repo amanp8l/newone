@@ -8,8 +8,12 @@ interface PlatformEditorProps {
   onContentChange: (content: string) => void;
   isGenerating: boolean;
   onImageClick: () => void;
+  onVideoClick: () => void;
+  onPdfClick: () => void;
   onAIClick: () => void;
   selectedImage: string[] | null;
+  selectedVideos: string[] | null;
+  selectedPdfs: string[] | null;
 }
 
 export const PlatformEditor: React.FC<PlatformEditorProps> = ({
@@ -17,7 +21,9 @@ export const PlatformEditor: React.FC<PlatformEditorProps> = ({
   onContentChange,
   isGenerating,
   onImageClick,
-  onAIClick
+  onVideoClick,
+  onPdfClick,
+  onAIClick,
 }) => {
   const handleBoldClick = () => {
     document.execCommand('bold', false);
@@ -29,11 +35,12 @@ export const PlatformEditor: React.FC<PlatformEditorProps> = ({
 
   return (
     <div className="flex-1 flex flex-col">
-      <EditorToolbar onImageClick={onImageClick} onAIClick={onAIClick} onVideoClick={function (): void {
-        throw new Error('Function not implemented.');
-      } } onPdfClick={function (): void {
-        throw new Error('Function not implemented.');
-      } } />
+      <EditorToolbar 
+        onImageClick={onImageClick} 
+        onVideoClick={onVideoClick} 
+        onPdfClick={onPdfClick} 
+        onAIClick={onAIClick}
+      />
 
       <div className="flex-1 relative">
         {isGenerating ? (

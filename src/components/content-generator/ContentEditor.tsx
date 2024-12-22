@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { FiX, FiCheck } from 'react-icons/fi';
+import { FiX, FiCheck, FiFile } from 'react-icons/fi';
 import { BlogEditor } from './editors/BlogEditor';
 import { PlatformEditor } from './editors/PlatformEditor';
 import { ImagePicker } from '../quick-generate/ImagePicker';
+import { VideoPicker } from '../quick-generate/VideoPicker';
 import { AIAssistant } from './editors/AIAssistant';
 import { PreviewScreen } from '../quick-generate/PreviewScreen';
 import { formatBlogContent } from '../../utils/contentFormatter';
@@ -58,11 +59,14 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
     linkedin: ''
   });
   const [showImagePicker, setShowImagePicker] = useState(false);
+  const [showVideoPicker, setShowVideoPicker] = useState(false);
   const [showAIChat, setShowAIChat] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   
   // Updated to support multiple images
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [selectedVideos, setSelectedVideos] = useState<string[]>([]);
+  const [selectedPdfs, setSelectedPdfs] = useState<string[]>([]);
   
   const [isGenerating, setIsGenerating] = useState(false);
   const [platformsEnabled, setPlatformsEnabled] = useState(false);
@@ -135,6 +139,25 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
     setShowImagePicker(false);
   };
 
+  const handleVideoSelect = (url: string) => {
+    setSelectedVideos(prev => [...prev, url]);
+    setShowVideoPicker(false);
+  };
+
+  const handlePdfUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    Array.from(files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setSelectedPdfs(prev => [...prev, result]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleImageDelete = (index: number) => {
     setSelectedImages((prev) => prev.filter((_, i) => i !== index));
   };
@@ -144,9 +167,12 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
       <PreviewScreen
         content={activeTab === 'blog' ? blogContent : platformContent[activeTab]}
         image={selectedImages[0]}
+        video={selectedVideos[0]}
+        pdf={selectedPdfs[0]}
         platform={activeTab}
         companyName={formData.companyName}
-        onBack={() => setShowPreview(false)} video={null} pdf={null}      />
+        onBack={() => setShowPreview(false)}
+      />
     );
   }
 
@@ -218,8 +244,12 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
                 onContentChange={(content) => handleContentUpdate(activeTab, content)}
                 isGenerating={isGenerating}
                 onImageClick={() => setShowImagePicker(true)}
+                onVideoClick={() => setShowVideoPicker(true)}
+                onPdfClick={() => handlePdfUpload}
                 onAIClick={() => setShowAIChat(true)}
                 selectedImage={selectedImages}
+                selectedVideos={selectedVideos}
+                selectedPdfs={selectedPdfs}
               />
             )}
 
@@ -249,6 +279,55 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
                 </div>
               </div>
             )}
+
+            {selectedVideos.length > 0 && (
+              <div className="mt-6 space-y-3">
+                <h4 className="font-medium text-indigo-900">Attached Videos</h4>
+                <div className="grid grid-cols-6 gap-4">
+                  {selectedVideos.map((video, index) => (
+                    <div
+                      key={index}
+                      className="relative group aspect-video rounded-lg overflow-hidden"
+                    >
+                      <video
+                        src={video}
+                        className="w-full h-full object-cover"
+                        controls
+                      />
+                      <button
+                        onClick={() => setSelectedVideos(prev => prev.filter((_, i) => i !== index))}
+                        className="absolute top-2 right-2 p-1.5 bg-red-500 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <FiX className="w-4 h-4 text-white" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {selectedPdfs.length > 0 && (
+              <div className="mt-6 space-y-3">
+                <h4 className="font-medium text-indigo-900">Attached PDFs</h4>
+                <div className="grid grid-cols-6 gap-4">
+                  {selectedPdfs.map((_pdf, index) => (
+                    <div
+                      key={index}
+                      className="relative group bg-indigo-50 rounded-lg p-4"
+                    >
+                      <FiFile className="w-8 h-8 text-indigo-600 mb-2" />
+                      <span className="text-sm text-indigo-900">PDF Document {index + 1}</span>
+                      <button
+                        onClick={() => setSelectedPdfs(prev => prev.filter((_, i) => i !== index))}
+                        className="absolute top-2 right-2 p-1.5 bg-red-500 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <FiX className="w-4 h-4 text-white" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -269,6 +348,14 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
         <ImagePicker
           onClose={() => setShowImagePicker(false)}
           onImageSelect={handleImageSelect}
+          allowMultiple={true}
+        />
+      )}
+      
+      {showVideoPicker && (
+        <VideoPicker
+          onClose={() => setShowVideoPicker(false)}
+          onVideoSelect={handleVideoSelect}
           allowMultiple={true}
         />
       )}
