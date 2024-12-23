@@ -31,6 +31,8 @@ export const Header: React.FC = () => {
         return 'Post Calendar';
       case '/help':
         return 'Ask for Help';
+      case '/trends':
+        return 'Trends';
       default:
         return 'Kimmchi';
     }

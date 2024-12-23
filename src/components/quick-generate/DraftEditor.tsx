@@ -75,7 +75,7 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
     { 
       id: 'tiktok', 
       name: 'TikTok', 
-      image: 'https://sf-tb-sg.ibytedtos.com/obj/eden-sg/uhtyvueh7nulogpoguhm/tiktok-icon2.png',
+      image: 'https://upload.wikimedia.org/wikipedia/commons/3/34/Ionicons_logo-tiktok.svg',
       connected: false 
     },
     { 
