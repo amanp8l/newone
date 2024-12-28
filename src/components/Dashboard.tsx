@@ -17,7 +17,6 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   description, 
   image, 
   difficulty = 'Easy',
-  estimatedTime = '5-10 min',
   rating = 4.8,
   onClick
 }) => (
@@ -50,10 +49,6 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
         </div>
         <h3 className="text-xl font-semibold text-indigo-900">{title}</h3>
         <p className="text-indigo-600/80 text-sm leading-relaxed">{description}</p>
-        <div className="flex items-center text-indigo-500 text-sm">
-          <FiClock className="w-4 h-4 mr-1" />
-          <span>{estimatedTime}</span>
-        </div>
       </div>
     </div>
   </div>
@@ -123,27 +118,24 @@ export const Dashboard: React.FC = () => {
 
   const features = [
     {
-      title: 'Create from Text',
+      title: 'Ask AI to Write',
       description: 'Transform your PDF and CSV documents into engaging social media content with AI-powered analysis.',
       image: 'https://images.unsplash.com/photo-1456324504439-367cee3b3c32?auto=format&fit=crop&w=800&q=80',
       difficulty: 'Beginner',
-      estimatedTime: '3-5 min',
       rating: 4.9
     },
     {
-      title: 'Create from Audio',
+      title: 'Create from Youtube Video',
       description: 'Convert podcasts, interviews, and audio clips into compelling social media posts.',
       image: 'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?auto=format&fit=crop&w=800&q=80',
       difficulty: 'Intermediate',
-      estimatedTime: '5-10 min',
       rating: 4.8
     },
     {
-      title: 'Create from Video',
+      title: 'Copy Linkedin Style',
       description: 'Turn YouTube videos and other video content into engaging social media updates.',
       image: 'https://images.unsplash.com/photo-1719937051124-91c677bc58fc?q=80&w=3272&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
       difficulty: 'Easy',
-      estimatedTime: '2-4 min',
       rating: 4.7
     },
     {
@@ -151,23 +143,20 @@ export const Dashboard: React.FC = () => {
       description: 'Generate captivating content from your PNG and JPEG images using advanced AI analysis.',
       image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=800&q=80',
       difficulty: 'Advanced',
-      estimatedTime: '8-12 min',
       rating: 4.9
     },
     {
-      title: 'Copy a Style',
+      title: 'Create from Website',
       description: 'Analyze and replicate successful LinkedIn content styles for your own posts.',
       image: 'https://images.unsplash.com/photo-1512486130939-2c4f79935e4f?auto=format&fit=crop&w=800&q=80',
       difficulty: 'Beginner',
-      estimatedTime: '4-6 min',
       rating: 4.6
     },
     {
-      title: 'Ask AI to Write',
+      title: 'Create from Audio',
       description: 'Let our advanced AI create custom content tailored to your brand voice and goals.',
       image: 'https://images.unsplash.com/photo-1515378960530-7c0da6231fb1?auto=format&fit=crop&w=800&q=80',
       difficulty: 'Intermediate',
-      estimatedTime: '6-8 min',
       rating: 4.8
     }
   ];
