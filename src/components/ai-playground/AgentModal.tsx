@@ -12,7 +12,7 @@ interface AgentModalProps {
 const platformLogos = {
   linkedin: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/LinkedIn_logo_initials.png/800px-LinkedIn_logo_initials.png',
   facebook: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Facebook_Logo_%282019%29.png/1200px-Facebook_Logo_%282019%29.png',
-  twitter: 'https://about.twitter.com/content/dam/about-twitter/x/brand-toolkit/logo-black.png.twimg.1920.png'
+  twitter: 'https://upload.wikimedia.org/wikipedia/commons/5/53/X_logo_2023_original.svg'
 };
 
 export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) => {
@@ -66,45 +66,31 @@ export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) =>
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-white rounded-2xl w-full max-w-6xl overflow-hidden shadow-2xl flex"
+        className={`bg-white rounded-2xl overflow-hidden shadow-2xl flex ${showPreview ? 'w-full max-w-6xl' : 'w-full max-w-2xl'}`}
       >
-        {/* Left Panel - Input Form */}
-        <div className="flex-1 max-w-2xl border-r border-indigo-100">
-          {/* Header */}
+        <div className={`${showPreview ? 'flex-1 max-w-2xl border-r border-indigo-100' : 'w-full min-w-[600px]'}`}>
           <div className="p-6 border-b border-indigo-100">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent">
                 {getTitle()}
               </h2>
-              <button
-                onClick={onClose}
-                className="p-2 hover:bg-indigo-50 rounded-lg transition-colors"
-              >
+              <button onClick={onClose} className="p-2 hover:bg-indigo-50 rounded-lg transition-colors">
                 <FiX className="w-5 h-5 text-indigo-400" />
               </button>
             </div>
 
-            {/* Supported Platforms */}
             <div className="flex items-center space-x-4">
               <span className="text-sm font-medium text-indigo-900">Supported Platforms:</span>
               <div className="flex items-center -space-x-2">
                 {supportedPlatforms.map((platform) => (
-                  <div
-                    key={platform}
-                    className="w-8 h-8 rounded-full bg-white p-1.5 shadow-sm border border-indigo-100 relative hover:z-10 transition-transform hover:-translate-y-1"
-                  >
-                    <img 
-                      src={platformLogos[platform as keyof typeof platformLogos]} 
-                      alt={platform}
-                      className="w-full h-full object-contain"
-                    />
+                  <div key={platform} className="w-8 h-8 rounded-full bg-white p-1.5 shadow-sm border border-indigo-100 relative hover:z-10 transition-transform hover:-translate-y-1">
+                    <img src={platformLogos[platform as keyof typeof platformLogos]} alt={platform} className="w-full h-full object-contain" />
                   </div>
                 ))}
               </div>
             </div>
           </div>
 
-          {/* Content Form */}
           <div className="p-6">
             <InputField
               agentType={agentType}
@@ -118,16 +104,12 @@ export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) =>
               selectedImage={selectedImage}
             />
 
-            <button
-              onClick={handleGenerate}
-              className="w-full mt-6 py-3 bg-gradient-to-r from-indigo-500 to-pink-500 text-white rounded-xl hover:from-indigo-600 hover:to-pink-600 transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl font-medium"
-            >
+            <button onClick={handleGenerate} className="w-full mt-6 py-3 bg-gradient-to-r from-indigo-500 to-pink-500 text-white rounded-xl hover:from-indigo-600 hover:to-pink-600 transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl font-medium">
               Generate Post
             </button>
           </div>
         </div>
 
-        {/* Right Panel - Preview */}
         {showPreview && (
           <motion.div
             initial={{ opacity: 0, x: 20 }}

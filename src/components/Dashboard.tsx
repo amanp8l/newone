@@ -76,7 +76,7 @@ export const Dashboard: React.FC = () => {
     {
       title: 'Ask AI to Write',
       description: 'Transform your ideas into engaging social media content with AI-powered analysis.',
-      image: 'https://images.unsplash.com/photo-1456324504439-367cee3b3c32?auto=format&fit=crop&w=800&q=80',
+      image: 'https://media.istockphoto.com/id/1503223319/photo/ai-chat-is-bot-to-smart-and-hitech-to-communicate-with-human-ai-connection-to-global-cyber.jpg?s=612x612&w=0&k=20&c=pcyg1aWSzTxwgpPjdT9bZ4LPLq8VydhAckSBJAtzXsI=',
       difficulty: 'Beginner',
       rating: 4.9,
       type: 'ask-ai'
@@ -84,7 +84,7 @@ export const Dashboard: React.FC = () => {
     {
       title: 'Create from Youtube Video',
       description: 'Convert YouTube videos into compelling social media posts.',
-      image: 'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?auto=format&fit=crop&w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1650371471800-aa496564acba?q=80&w=3432&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
       difficulty: 'Intermediate',
       rating: 4.8,
       type: 'youtube-video'
@@ -92,7 +92,7 @@ export const Dashboard: React.FC = () => {
     {
       title: 'Copy Linkedin Style',
       description: 'Analyze and replicate successful LinkedIn content styles.',
-      image: 'https://images.unsplash.com/photo-1719937051124-91c677bc58fc?auto=format&fit=crop&w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1456324504439-367cee3b3c32?auto=format&fit=crop&w=800&q=80',
       difficulty: 'Easy',
       rating: 4.7,
       type: 'linkedin-style'
@@ -100,7 +100,7 @@ export const Dashboard: React.FC = () => {
     {
       title: 'Create from Images',
       description: 'Generate captivating content from your images using advanced AI analysis.',
-      image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=800&q=80',
+      image: 'https://plus.unsplash.com/premium_photo-1674389991678-0836ca77c7f7?q=80&w=3270&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
       difficulty: 'Advanced',
       rating: 4.9,
       type: 'image-upload'
@@ -108,7 +108,7 @@ export const Dashboard: React.FC = () => {
     {
       title: 'Create from Videos',
       description: 'Transform your videos into engaging social media content automatically.',
-      image: 'https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format&fit=crop&w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1719937051124-91c677bc58fc?auto=format&fit=crop&w=800&q=80',
       difficulty: 'Advanced',
       rating: 5.0,
       comingSoon: true
@@ -116,7 +116,7 @@ export const Dashboard: React.FC = () => {
     {
       title: 'Create from Voice',
       description: 'Convert voice recordings into compelling social media posts.',
-      image: 'https://images.unsplash.com/photo-1478737270208-0bd3c643615b?auto=format&fit=crop&w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?auto=format&fit=crop&w=800&q=80',
       difficulty: 'Advanced',
       rating: 5.0,
       comingSoon: true

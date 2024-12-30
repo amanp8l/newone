@@ -51,7 +51,7 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
     { 
       id: 'twitter', 
       name: 'X (Twitter)', 
-      image: 'https://about.twitter.com/content/dam/about-twitter/x/brand-toolkit/logo-black.png.twimg.1920.png',
+      image: 'https://upload.wikimedia.org/wikipedia/commons/5/53/X_logo_2023_original.svg',
       connected: false 
     },
     { 
