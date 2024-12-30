@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
-import { FiArrowUpRight, FiClock, FiStar, FiX } from 'react-icons/fi';
-import { motion, AnimatePresence } from 'framer-motion';
+import { FiArrowUpRight, FiStar } from 'react-icons/fi';
+import { AnimatePresence } from 'framer-motion';
+import { AgentModal } from './ai-playground/AgentModal';
+
+type AgentType = 'ask-ai' | 'youtube-video' | 'linkedin-style' | 'image-upload';
 
 interface FeatureCardProps {
   title: string;
   description: string;
   image: string;
   difficulty?: string;
-  estimatedTime?: string;
   rating?: number;
-  onClick: () => void;
+  comingSoon?: boolean;
+  onClick?: () => void;
+  type?: AgentType;
 }
 
 const FeatureCard: React.FC<FeatureCardProps> = ({ 
@@ -18,11 +22,14 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   image, 
   difficulty = 'Easy',
   rating = 4.8,
+  comingSoon = false,
   onClick
 }) => (
   <div 
-    onClick={onClick}
-    className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 group cursor-pointer overflow-hidden"
+    className={`bg-white rounded-2xl shadow-sm transition-all duration-300 group overflow-hidden ${
+      !comingSoon ? 'hover:shadow-md cursor-pointer' : 'opacity-75'
+    }`}
+    onClick={!comingSoon ? onClick : undefined}
   >
     <div className="p-5">
       <div className="relative mb-4 rounded-xl overflow-hidden">
@@ -31,11 +38,19 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
           alt={title} 
           className="w-full h-48 object-cover transform group-hover:scale-105 transition-transform duration-300"
         />
-        <div className="absolute top-3 right-3">
-          <div className="bg-gradient-to-r from-indigo-500 to-pink-500 p-2 rounded-lg shadow-lg backdrop-blur-sm">
-            <FiArrowUpRight className="w-5 h-5 text-white" />
+        {comingSoon ? (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-pink-500 rounded-full text-white font-medium animate-pulse">
+              Coming Soon
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="absolute top-3 right-3">
+            <div className="bg-gradient-to-r from-indigo-500 to-pink-500 p-2 rounded-lg shadow-lg backdrop-blur-sm">
+              <FiArrowUpRight className="w-5 h-5 text-white" />
+            </div>
+          </div>
+        )}
       </div>
       <div className="space-y-3">
         <div className="flex items-center justify-between">
@@ -54,110 +69,57 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   </div>
 );
 
-const ComingSoonModal: React.FC<{ isOpen: boolean; onClose: () => void; feature: string }> = ({ 
-  isOpen, 
-  onClose,
-  feature 
-}) => (
-  <AnimatePresence>
-    {isOpen && (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
-      >
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-white rounded-2xl p-8 max-w-lg w-full relative overflow-hidden"
-        >
-          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-pink-500" />
-          
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 p-2 hover:bg-indigo-50 rounded-lg transition-colors"
-          >
-            <FiX className="w-5 h-5 text-indigo-400" />
-          </button>
-
-          <div className="text-center space-y-6">
-            <div className="w-20 h-20 mx-auto bg-gradient-to-br from-indigo-100 to-pink-100 rounded-2xl flex items-center justify-center relative">
-              <FiClock className="w-10 h-10 text-indigo-600" />
-              <div className="absolute -right-2 -top-2">
-                <span className="flex h-4 w-4">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-4 w-4 bg-indigo-500"></span>
-                </span>
-              </div>
-            </div>
-
-            <div>
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent mb-2">
-                {feature} Coming Soon
-              </h2>
-              <p className="text-indigo-600">
-                We're working hard to bring you this exciting feature. Stay tuned for updates!
-              </p>
-            </div>
-
-            <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-indigo-50 to-pink-50 px-4 py-2 rounded-full">
-              <span className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></span>
-              <span className="text-indigo-600 text-sm">In Development</span>
-            </div>
-          </div>
-        </motion.div>
-      </motion.div>
-    )}
-  </AnimatePresence>
-);
-
 export const Dashboard: React.FC = () => {
-  const [selectedFeature, setSelectedFeature] = useState<string | null>(null);
+  const [selectedAgent, setSelectedAgent] = useState<AgentType | null>(null);
 
-  const features = [
+  const features: (FeatureCardProps & { type?: AgentType })[] = [
     {
       title: 'Ask AI to Write',
-      description: 'Transform your PDF and CSV documents into engaging social media content with AI-powered analysis.',
+      description: 'Transform your ideas into engaging social media content with AI-powered analysis.',
       image: 'https://images.unsplash.com/photo-1456324504439-367cee3b3c32?auto=format&fit=crop&w=800&q=80',
       difficulty: 'Beginner',
-      rating: 4.9
+      rating: 4.9,
+      type: 'ask-ai'
     },
     {
       title: 'Create from Youtube Video',
-      description: 'Convert podcasts, interviews, and audio clips into compelling social media posts.',
+      description: 'Convert YouTube videos into compelling social media posts.',
       image: 'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?auto=format&fit=crop&w=800&q=80',
       difficulty: 'Intermediate',
-      rating: 4.8
+      rating: 4.8,
+      type: 'youtube-video'
     },
     {
       title: 'Copy Linkedin Style',
-      description: 'Turn YouTube videos and other video content into engaging social media updates.',
-      image: 'https://images.unsplash.com/photo-1719937051124-91c677bc58fc?q=80&w=3272&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      description: 'Analyze and replicate successful LinkedIn content styles.',
+      image: 'https://images.unsplash.com/photo-1719937051124-91c677bc58fc?auto=format&fit=crop&w=800&q=80',
       difficulty: 'Easy',
-      rating: 4.7
+      rating: 4.7,
+      type: 'linkedin-style'
     },
     {
       title: 'Create from Images',
-      description: 'Generate captivating content from your PNG and JPEG images using advanced AI analysis.',
+      description: 'Generate captivating content from your images using advanced AI analysis.',
       image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=800&q=80',
       difficulty: 'Advanced',
-      rating: 4.9
+      rating: 4.9,
+      type: 'image-upload'
     },
     {
-      title: 'Create from Website',
-      description: 'Analyze and replicate successful LinkedIn content styles for your own posts.',
-      image: 'https://images.unsplash.com/photo-1512486130939-2c4f79935e4f?auto=format&fit=crop&w=800&q=80',
-      difficulty: 'Beginner',
-      rating: 4.6
+      title: 'Create from Videos',
+      description: 'Transform your videos into engaging social media content automatically.',
+      image: 'https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format&fit=crop&w=800&q=80',
+      difficulty: 'Advanced',
+      rating: 5.0,
+      comingSoon: true
     },
     {
-      title: 'Create from Audio',
-      description: 'Let our advanced AI create custom content tailored to your brand voice and goals.',
-      image: 'https://images.unsplash.com/photo-1515378960530-7c0da6231fb1?auto=format&fit=crop&w=800&q=80',
-      difficulty: 'Intermediate',
-      rating: 4.8
+      title: 'Create from Voice',
+      description: 'Convert voice recordings into compelling social media posts.',
+      image: 'https://images.unsplash.com/photo-1478737270208-0bd3c643615b?auto=format&fit=crop&w=800&q=80',
+      difficulty: 'Advanced',
+      rating: 5.0,
+      comingSoon: true
     }
   ];
 
@@ -174,21 +136,24 @@ export const Dashboard: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 overflow-y-auto h-[calc(100%-5rem)] pb-6">
-          {features.map((feature, index) => (
+          {features.map((feature) => (
             <FeatureCard 
-              key={index} 
+              key={feature.title} 
               {...feature} 
-              onClick={() => setSelectedFeature(feature.title)}
+              onClick={() => !feature.comingSoon && feature.type && setSelectedAgent(feature.type)}
             />
           ))}
         </div>
       </div>
 
-      <ComingSoonModal
-        isOpen={!!selectedFeature}
-        onClose={() => setSelectedFeature(null)}
-        feature={selectedFeature || ''}
-      />
+      <AnimatePresence>
+        {selectedAgent && (
+          <AgentModal
+            agentType={selectedAgent}
+            onClose={() => setSelectedAgent(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
