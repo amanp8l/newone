@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { FiX } from 'react-icons/fi';
 import { motion } from 'framer-motion';
-import { PlatformPreview } from './PlatformPreview';
 import { InputField } from './InputField';
 
 interface AgentModalProps {
@@ -20,7 +19,6 @@ export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) =>
   const [youtubeUrl, setYoutubeUrl] = useState('');
   const [linkedinUsername, setLinkedinUsername] = useState('');
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [showPreview, setShowPreview] = useState(false);
 
   const getSupportedPlatforms = () => {
     switch (agentType) {
@@ -55,7 +53,8 @@ export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) =>
   };
 
   const handleGenerate = () => {
-    setShowPreview(true);
+    // Handle generation logic here
+    console.log('Generating post...');
   };
 
   const supportedPlatforms = getSupportedPlatforms();
@@ -66,9 +65,9 @@ export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) =>
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className={`bg-white rounded-2xl overflow-hidden shadow-2xl flex ${showPreview ? 'w-full max-w-6xl' : 'w-full max-w-2xl'}`}
+        className="bg-white rounded-2xl overflow-hidden shadow-2xl w-full max-w-2xl"
       >
-        <div className={`${showPreview ? 'flex-1 max-w-2xl border-r border-indigo-100' : 'w-full min-w-[600px]'}`}>
+        <div className="w-full min-w-[600px]">
           <div className="p-6 border-b border-indigo-100">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent">
@@ -109,25 +108,6 @@ export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) =>
             </button>
           </div>
         </div>
-
-        {showPreview && (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="flex-1 bg-indigo-50/30 p-6 overflow-y-auto"
-          >
-            <h3 className="text-xl font-semibold text-indigo-900 mb-6">Generated Content</h3>
-            <div className="space-y-4">
-              {supportedPlatforms.map((platform) => (
-                <PlatformPreview
-                  key={platform}
-                  platform={platform}
-                  logo={platformLogos[platform as keyof typeof platformLogos]}
-                />
-              ))}
-            </div>
-          </motion.div>
-        )}
       </motion.div>
     </div>
   );
