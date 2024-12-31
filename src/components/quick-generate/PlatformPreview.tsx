@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { FiHeart, FiMessageCircle, FiRepeat, FiShare2, FiThumbsUp, FiFile, FiArrowUp, FiArrowDown, FiBookmark } from 'react-icons/fi';
 import { PreviewPlatformContent } from '../../utils/previewFormatter';
@@ -19,13 +20,15 @@ export const PlatformPreview: React.FC<PlatformPreviewProps> = ({
   video,
   pdf
 }) => {
-  // Format content for the specific platform
-  const formattedContent = PreviewPlatformContent(content);
+  // Format content for the specific platform, ensure content is string
+  const safeContent = typeof content === 'string' ? content : '';
+  const formattedContent = PreviewPlatformContent(safeContent);
 
   // Helper function to truncate content
-  const truncateContent = (content: string, wordLimit: number) => {
-    const words = content.split(' ');
-    if (words.length <= wordLimit) return content;
+  const truncateContent = (text: string, wordLimit: number) => {
+    if (!text || typeof text !== 'string') return '';
+    const words = text.split(' ');
+    if (words.length <= wordLimit) return text;
     return `${words.slice(0, wordLimit).join(' ')} ...more`;
   };
 

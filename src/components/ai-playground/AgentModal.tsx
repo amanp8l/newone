@@ -49,46 +49,15 @@ export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) =>
     }
   };
 
-  const generateContent = async () => {
-    setIsGenerating(true);
-    setError(null);
-    setShowPreviews(false);
-    
-    try {
-      let responses: { [key: string]: string } = {};
-
-      if (agentType === 'ask-ai') {
-        const platforms = ['linkedin', 'facebook', 'twitter'];
-        const promises = platforms.map(platform => 
-          axios.post(`https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/${platform}_post_raw`, {
-            raw_content: prompt
-          })
-        );
-        
-        const results = await Promise.all(promises);
-        platforms.forEach((platform, index) => {
-          responses[platform] = results[index].data;
-        });
-      }
-      else if (agentType === 'youtube-video') {
-        const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/linkedin_post_by_youtube', {
-          yt_url: youtubeUrl,
-          prompt
-        });
-        responses['linkedin'] = response.data;
-      }
-      else if (agentType === 'linkedin-style') {
-        const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/linkedin_post_by_others', {
-          username: linkedinUsername,
-          prompt
-        });
-        responses['linkedin'] = response.data;
-      }
-      else if (agentType === 'image-upload' && selectedImage) {
-        const reader = new FileReader();
-        reader.onload = async () => {
+  const processImageUpload = async (file: File): Promise<{[key: string]: string}> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
           const base64Image = reader.result?.toString().split(',')[1];
-          if (!base64Image) return;
+          if (!base64Image) {
+            throw new Error('Failed to process image');
+          }
 
           const platforms = ['linkedin', 'facebook', 'twitter'];
           const promises = platforms.map(platform => 
@@ -99,15 +68,65 @@ export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) =>
           );
           
           const results = await Promise.all(promises);
+          const responses: {[key: string]: string} = {};
           platforms.forEach((platform, index) => {
             responses[platform] = results[index].data;
           });
+          resolve(responses);
+        } catch (error) {
+          reject(error);
+        }
+      };
+      reader.onerror = () => reject(new Error('Failed to read image file'));
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const generateContent = async () => {
+    setIsGenerating(true);
+    setError(null);
+    setShowPreviews(false);
+    
+    try {
+      let responses: { [key: string]: string } = {};
+
+      switch (agentType) {
+        case 'ask-ai':
+          const platforms = supportedPlatforms['ask-ai'];
+          const promises = platforms.map(platform => 
+            axios.post(`https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/${platform}_post_raw`, {
+              raw_content: prompt
+            })
+          );
           
-          setGeneratedContent(responses);
-          setShowPreviews(true);
-        };
-        reader.readAsDataURL(selectedImage);
-        return;
+          const results = await Promise.all(promises);
+          platforms.forEach((platform, index) => {
+            responses[platform] = results[index].data;
+          });
+          break;
+
+        case 'youtube-video':
+          const ytResponse = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/linkedin_post_by_youtube', {
+            yt_url: youtubeUrl,
+            prompt
+          });
+          responses['linkedin'] = ytResponse.data;
+          break;
+
+        case 'linkedin-style':
+          const linkedinResponse = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/linkedin_post_by_others', {
+            username: linkedinUsername,
+            prompt
+          });
+          responses['linkedin'] = linkedinResponse.data;
+          break;
+
+        case 'image-upload':
+          if (!selectedImage) {
+            throw new Error('No image selected');
+          }
+          responses = await processImageUpload(selectedImage);
+          break;
       }
 
       setGeneratedContent(responses);
@@ -193,7 +212,7 @@ export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) =>
                       content={generatedContent[platform] || ''}
                       companyName="Your Company"
                       image={selectedImage ? URL.createObjectURL(selectedImage) : null}
-                      video={null}
+                      video={youtubeUrl || null}
                       pdf={null}
                     />
                   </div>
