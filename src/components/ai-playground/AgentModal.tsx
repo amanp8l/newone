@@ -29,6 +29,12 @@ export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) =>
     'image-upload': ['linkedin', 'facebook', 'twitter']
   };
 
+  const platformImages = {
+    linkedin: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/LinkedIn_logo_initials.png/800px-LinkedIn_logo_initials.png',
+    facebook: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Facebook_Logo_%282019%29.png/1200px-Facebook_Logo_%282019%29.png',
+    twitter: 'https://upload.wikimedia.org/wikipedia/commons/5/53/X_logo_2023_original.svg'
+  };
+
   const getTitle = () => {
     switch (agentType) {
       case 'ask-ai':
@@ -166,12 +172,35 @@ export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) =>
         <div className="w-[500px] bg-white rounded-2xl overflow-hidden shadow-2xl">
           <div className="p-6 border-b border-indigo-100">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent">
-                {getTitle()}
-              </h2>
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent mb-2">
+                  {getTitle()}
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {supportedPlatforms[agentType].map((platform) => (
+                    <div key={platform} className="flex items-center bg-gradient-to-r from-indigo-50 to-pink-50 rounded-full px-3 py-1.5">
+                      <img 
+                        src={platformImages[platform as keyof typeof platformImages]} 
+                        alt={platform}
+                        className="w-4 h-4 mr-2 object-contain"
+                      />
+                      <span className="text-xs font-medium text-indigo-600 capitalize">{platform}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
               <button onClick={onClose} className="p-2 hover:bg-indigo-50 rounded-lg transition-colors">
                 <FiX className="w-5 h-5 text-indigo-400" />
               </button>
+            </div>
+
+            <div className="bg-gradient-to-r from-indigo-50 to-pink-50 rounded-xl p-4 mb-6">
+              <p className="text-indigo-600 text-sm leading-relaxed">
+                {agentType === 'ask-ai' && "Let AI craft engaging social media content from your ideas. Perfect for quick, platform-optimized posts."}
+                {agentType === 'youtube-video' && "Transform YouTube videos into compelling LinkedIn posts. Great for sharing video insights."}
+                {agentType === 'linkedin-style' && "Analyze and replicate successful LinkedIn content styles for better engagement."}
+                {agentType === 'image-upload' && "Generate engaging social media content from images using advanced AI analysis."}
+              </p>
             </div>
 
             <InputField
@@ -221,7 +250,14 @@ export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) =>
               <div className="space-y-6 max-h-[calc(80vh-120px)] overflow-y-auto">
                 {supportedPlatforms[agentType].map((platform) => (
                   <div key={platform} className="space-y-2">
-                    <h4 className="text-sm font-medium text-indigo-900 capitalize">{platform}</h4>
+                    <div className="flex items-center space-x-2">
+                      <img 
+                        src={platformImages[platform as keyof typeof platformImages]} 
+                        alt={platform}
+                        className="w-5 h-5 object-contain"
+                      />
+                      <h4 className="text-sm font-medium text-indigo-900 capitalize">{platform}</h4>
+                    </div>
                     <PlatformPreview
                       platform={platform}
                       content={generatedContent[platform] || ''}
