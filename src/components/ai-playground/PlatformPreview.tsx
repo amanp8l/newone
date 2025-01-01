@@ -69,7 +69,6 @@
             const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/generate_url_for_image', {
                 b64_string: image.split(',')[1]
             });
-            console.log(response.data)
             imageUrl = response.data;
             } catch (error) {
             console.error('Error converting image:', error);
