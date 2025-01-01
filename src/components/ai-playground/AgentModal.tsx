@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { FiX, FiLoader } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import { InputField } from './InputField';
-import { PlatformPreview } from '../quick-generate/PlatformPreview';
+import { PlatformPreview } from './PlatformPreview';
+import { formatPlatformContent } from '../../utils/platformFormatter';
 import axios from 'axios';
 
 interface AgentModalProps {
@@ -49,6 +50,11 @@ export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) =>
     }
   };
 
+  const extractContent = (response: any, platform: string) => {
+    const contentKey = `${platform}_post`;
+    return response[contentKey] || response.data?.[contentKey] || '';
+  };
+
   const processImageUpload = async (file: File): Promise<{[key: string]: string}> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -60,17 +66,18 @@ export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) =>
           }
 
           const platforms = ['linkedin', 'facebook', 'twitter'];
-          const promises = platforms.map(platform => 
-            axios.post(`https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/${platform}_post_by_image`, {
+          const promises = platforms.map(async platform => {
+            const response = await axios.post(`https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/${platform}_post_by_image`, {
               base64_image: base64Image,
               prompt
-            })
-          );
+            });
+            return formatPlatformContent(extractContent(response.data, platform));
+          });
           
           const results = await Promise.all(promises);
           const responses: {[key: string]: string} = {};
           platforms.forEach((platform, index) => {
-            responses[platform] = results[index].data;
+            responses[platform] = results[index];
           });
           resolve(responses);
         } catch (error) {
@@ -93,15 +100,16 @@ export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) =>
       switch (agentType) {
         case 'ask-ai':
           const platforms = supportedPlatforms['ask-ai'];
-          const promises = platforms.map(platform => 
-            axios.post(`https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/${platform}_post_raw`, {
+          const promises = platforms.map(async platform => {
+            const response = await axios.post(`https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/${platform}_post_raw`, {
               raw_content: prompt
-            })
-          );
+            });
+            return response.data;
+          });
           
           const results = await Promise.all(promises);
           platforms.forEach((platform, index) => {
-            responses[platform] = results[index].data;
+            responses[platform] = results[index];
           });
           break;
 
@@ -110,7 +118,7 @@ export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) =>
             yt_url: youtubeUrl,
             prompt
           });
-          responses['linkedin'] = ytResponse.data;
+          responses['linkedin'] = formatPlatformContent( extractContent(ytResponse.data, 'linkedin'));
           break;
 
         case 'linkedin-style':
@@ -118,7 +126,7 @@ export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) =>
             username: linkedinUsername,
             prompt
           });
-          responses['linkedin'] = linkedinResponse.data;
+          responses['linkedin'] = formatPlatformContent( extractContent(linkedinResponse.data, 'linkedin'));
           break;
 
         case 'image-upload':
@@ -138,7 +146,6 @@ export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) =>
       setIsGenerating(false);
     }
   };
-
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <motion.div
@@ -212,7 +219,7 @@ export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) =>
                       content={generatedContent[platform] || ''}
                       companyName="Your Company"
                       image={selectedImage ? URL.createObjectURL(selectedImage) : null}
-                      video={youtubeUrl || null}
+                      video={null}
                       pdf={null}
                     />
                   </div>
