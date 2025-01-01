@@ -16,6 +16,7 @@ export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) =>
   const [youtubeUrl, setYoutubeUrl] = useState('');
   const [linkedinUsername, setLinkedinUsername] = useState('');
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [base64Image, setBase64Image] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [generatedContent, setGeneratedContent] = useState<{[key: string]: string}>({});
@@ -47,6 +48,13 @@ export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) =>
     const file = e.target.files?.[0];
     if (file) {
       setSelectedImage(file);
+      // Convert file to base64 when it's selected
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64String = reader.result?.toString() || '';
+        setBase64Image(base64String);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -118,7 +126,7 @@ export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) =>
             yt_url: youtubeUrl,
             prompt
           });
-          responses['linkedin'] = formatPlatformContent( extractContent(ytResponse.data, 'linkedin'));
+          responses['linkedin'] = formatPlatformContent(extractContent(ytResponse.data, 'linkedin'));
           break;
 
         case 'linkedin-style':
@@ -126,7 +134,7 @@ export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) =>
             username: linkedinUsername,
             prompt
           });
-          responses['linkedin'] = formatPlatformContent( extractContent(linkedinResponse.data, 'linkedin'));
+          responses['linkedin'] = formatPlatformContent(extractContent(linkedinResponse.data, 'linkedin'));
           break;
 
         case 'image-upload':
@@ -146,6 +154,7 @@ export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) =>
       setIsGenerating(false);
     }
   };
+
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <motion.div
@@ -218,7 +227,7 @@ export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) =>
                       platform={platform}
                       content={generatedContent[platform] || ''}
                       companyName="Your Company"
-                      image={selectedImage ? URL.createObjectURL(selectedImage) : null}
+                      image={base64Image}
                       video={null}
                       pdf={null}
                     />
