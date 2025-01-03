@@ -2,26 +2,6 @@ import { Trend } from '../types/trends';
 
 export const trends: Trend[] = [
   {
-    title: "Dumb Ways to Die",
-    keyTheme: "Public safety awareness through dark humor",
-    sellingPoint: "Making train safety memorable through catchy music and cute characters",
-    visualAppeal: "Colorful, simple animations with endearing characters",
-    goodPoints: [
-      "Masterful blend of serious message with entertaining content",
-      "Extremely catchy and memorable song",
-      "Generated 303 million YouTube views",
-      "Led to 127 million safety pledges"
-    ],
-    badPoints: [
-      "Dark subject matter might not appeal to everyone",
-      "Some might find the deaths too graphic despite cute animation"
-    ],
-    description: "A viral public safety campaign that uses dark humor and catchy music to promote railway safety",
-    views: 303,
-    engagement: 127000,
-    videoUrl: "https://www.youtube.com/watch?v=IJNR2EpS0jw"
-  },
-  {
     title: "Magical Place (Toys R Us)",
     keyTheme: "Childhood wonder and nostalgia",
     sellingPoint: "Creating emotional connection through memorable jingle",
@@ -440,25 +420,26 @@ export const trends: Trend[] = [
     engagement: 1000000,
     videoUrl: "https://www.youtube.com/watch?v=M7FIvfx5J10"
   },
-  // {
-  //   title: "Hare Jordan (Nike)",
-  //   keyTheme: "Sports and entertainment",
-  //   sellingPoint: "Unique animation/live action mix",
-  //   visualAppeal: "Groundbreaking mixed media",
-  //   goodPoints: [
-  //     "Universal appeal",
-  //     "Strong celebrity integration",
-  //     "Led to Space Jam movie"
-  //   ],
-  //   badPoints: [
-  //     "Dated special effects",
-  //     "Lower modern engagement (129,000 views)"
-  //   ],
-  //   description: "A groundbreaking commercial featuring Michael Jordan and Bugs Bunny",
-  //   views: 0.129,
-  //   engagement: 20000,
-  //   videoUrl: "https://www.youtube.com/watch?v=2QeG-noRMPs"
-  // },
+  {
+    title: "Dumb Ways to Die",
+    keyTheme: "Public safety awareness through dark humor",
+    sellingPoint: "Making train safety memorable through catchy music and cute characters",
+    visualAppeal: "Colorful, simple animations with endearing characters",
+    goodPoints: [
+      "Masterful blend of serious message with entertaining content",
+      "Extremely catchy and memorable song",
+      "Generated 303 million YouTube views",
+      "Led to 127 million safety pledges"
+    ],
+    badPoints: [
+      "Dark subject matter might not appeal to everyone",
+      "Some might find the deaths too graphic despite cute animation"
+    ],
+    description: "A viral public safety campaign that uses dark humor and catchy music to promote railway safety",
+    views: 303,
+    engagement: 127000,
+    videoUrl: "https://www.youtube.com/watch?v=IJNR2EpS0jw"
+  },
   {
     title: "Colour Like No Other (Sony Bravia)",
     keyTheme: "Visual spectacle",
