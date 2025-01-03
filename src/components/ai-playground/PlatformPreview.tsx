@@ -1,8 +1,8 @@
     import React, { useState } from 'react';
-    import { FiHeart, FiMessageCircle, FiRepeat, FiShare2, FiThumbsUp, FiFile, FiSend, FiLoader, FiCheck } from 'react-icons/fi';
+    import { FiHeart, FiMessageCircle, FiRepeat, FiShare2, FiThumbsUp, FiFile, FiSend, FiCheck, FiMoreVertical, FiEdit, FiCalendar,  } from 'react-icons/fi';
+    import { useAuthStore } from '../../store/authStore';
     import { PreviewPlatformContent } from '../../utils/previewFormatter';
     import axios from 'axios';
-    import { useAuthStore } from '../../store/authStore';
 
     interface PlatformPreviewProps {
     platform: string;
@@ -16,6 +16,11 @@
     interface NotificationProps {
     type: 'success' | 'error';
     message: string;
+    }
+
+    interface ScheduleModalProps {
+    onClose: () => void;
+    onSchedule: (date: Date) => void;
     }
 
     const Notification: React.FC<NotificationProps> = ({ type, message }) => (
@@ -35,6 +40,64 @@
     </div>
     );
 
+    const ScheduleModal: React.FC<ScheduleModalProps> = ({ onClose, onSchedule }) => {
+    const [selectedDate, setSelectedDate] = useState<string>('');
+    const [selectedTime, setSelectedTime] = useState<string>('');
+
+    const handleSchedule = () => {
+        if (!selectedDate || !selectedTime) return;
+        const dateTime = new Date(`${selectedDate}T${selectedTime}`);
+        onSchedule(dateTime);
+        onClose();
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-xl p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-6">
+            <h3 className="text-lg font-semibold text-indigo-900">Schedule Post</h3>
+            <button
+                onClick={onClose}
+                className="p-2 hover:bg-indigo-50 rounded-lg transition-colors"
+            >
+                <FiCheck className="w-5 h-5 text-indigo-400" />
+            </button>
+            </div>
+            <div className="space-y-4">
+            <div>
+                <label className="block text-sm font-medium text-indigo-900 mb-2">
+                Date
+                </label>
+                <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="w-full rounded-lg border border-indigo-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+            </div>
+            <div>
+                <label className="block text-sm font-medium text-indigo-900 mb-2">
+                Time
+                </label>
+                <input
+                type="time"
+                value={selectedTime}
+                onChange={(e) => setSelectedTime(e.target.value)}
+                className="w-full rounded-lg border border-indigo-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+            </div>
+            <button
+                onClick={handleSchedule}
+                className="w-full py-2 bg-gradient-to-r from-indigo-500 to-pink-500 text-white rounded-lg hover:from-indigo-600 hover:to-pink-600 transition-colors"
+            >
+                Schedule Post
+            </button>
+            </div>
+        </div>
+        </div>
+    );
+    };
+
     export const PlatformPreview: React.FC<PlatformPreviewProps> = ({
     platform,
     content,
@@ -46,6 +109,14 @@
     const { user } = useAuthStore();
     const [isPublishing, setIsPublishing] = useState(false);
     const [notification, setNotification] = useState<NotificationProps | null>(null);
+    const [showMenu, setShowMenu] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedContent, setEditedContent] = useState(content);
+    const [showScheduleModal, setShowScheduleModal] = useState(false);
+
+    // Format content for the specific platform
+    const safeContent = typeof content === 'string' ? content : '';
+    const formattedContent = PreviewPlatformContent(safeContent);
 
     const showNotification = (type: 'success' | 'error', message: string) => {
         setNotification({ type, message });
@@ -63,7 +134,6 @@
         try {
         let imageUrl: string | null = null;
         
-        // Convert base64 image to URL if image exists and is base64
         if (image && image.startsWith('data:')) {
             try {
             const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/generate_url_for_image', {
@@ -78,11 +148,10 @@
             }
         }
 
-        // Prepare API payload
         const payload = {
             user_email: user.email,
             platform: platform.toLowerCase(),
-            post: formattedContent,
+            post: isEditing ? editedContent : formattedContent,
             ...(imageUrl || image ? { media_url: [imageUrl || image] } : {})
         };
 
@@ -92,40 +161,127 @@
             showNotification('success', 'Post successfully published!');
         }
         } catch (error: any) {
-        showNotification('error', 'Failed to publish post. Please try again.');
+        showNotification('error', `Post failed. Please ensure that you have connected ${platform}`);
         } finally {
         setIsPublishing(false);
+        setShowMenu(false);
         }
     };
 
-    // Format content for the specific platform, ensure content is string
-    const safeContent = typeof content === 'string' ? content : '';
-    const formattedContent = PreviewPlatformContent(safeContent);
+    const handleSchedule = async (scheduledDate: Date) => {
+        if (!user?.email) {
+        showNotification('error', 'User email not found');
+        return;
+        }
 
-    const PublishButton = () => (
+        setIsPublishing(true);
+
+        try {
+        let imageUrl: string | null = null;
+        
+        if (image && image.startsWith('data:')) {
+            try {
+            const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/generate_url_for_image', {
+                b64_string: image.split(',')[1]
+            });
+            imageUrl = response.data;
+            } catch (error) {
+            console.error('Error converting image:', error);
+            showNotification('error', 'Failed to process image');
+            setIsPublishing(false);
+            return;
+            }
+        }
+
+        const scheduleData = {
+            data: {
+            user_email: user.email,
+            platform: platform.toLowerCase(),
+            post: isEditing ? editedContent : formattedContent,
+            media_url: imageUrl ? [imageUrl] : undefined
+            },
+            time: {
+            year: scheduledDate.getFullYear(),
+            month: scheduledDate.getMonth() + 1,
+            day: scheduledDate.getDate(),
+            hours: scheduledDate.getHours(),
+            minutes: scheduledDate.getMinutes()
+            }
+        };
+
+        const scheduleResponse = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/set_auto_schedule', scheduleData);
+
+        if (scheduleResponse.status === 200) {
+            const calendarData = {
+            year: scheduledDate.getFullYear(),
+            month: scheduledDate.getMonth() + 1,
+            day: scheduledDate.getDate(),
+            hours: scheduledDate.getHours(),
+            minutes: scheduledDate.getMinutes(),
+            platform: platform.toLowerCase(),
+            user_email: user.email,
+            content: isEditing ? editedContent : formattedContent,
+            media: imageUrl ? [imageUrl] : undefined
+            };
+
+            await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/db/add_post', calendarData);
+            showNotification('success', 'Post successfully scheduled!');
+        }
+        } catch (error: any) {
+        showNotification('error', `Scheduling failed. Please ensure that you have connected ${platform}`);
+        } finally {
+        setIsPublishing(false);
+        setShowMenu(false);
+        }
+    };
+
+    const renderMenu = () => (
+        <div className="absolute top-4 right-4 z-10">
         <button
-        onClick={handlePublish}
-        disabled={isPublishing}
-        className="absolute top-4 right-4 px-4 py-2 bg-white/90 backdrop-blur-sm border border-indigo-200 text-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors flex items-center space-x-2 shadow-sm"
+            onClick={() => setShowMenu(!showMenu)}
+            className="p-2 bg-white/90 backdrop-blur-sm border border-indigo-200 text-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors"
         >
-        {isPublishing ? (
-            <>
-            <FiLoader className="w-4 h-4 animate-spin" />
-            <span>Publishing...</span>
-            </>
-        ) : (
-            <>
-            <FiSend className="w-4 h-4" />
-            <span>Publish</span>
-            </>
-        )}
+            <FiMoreVertical className="w-4 h-4" />
         </button>
+
+        {showMenu && (
+            <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-indigo-100 py-2">
+            <button
+                onClick={() => {
+                setIsEditing(!isEditing);
+                setShowMenu(false);
+                }}
+                className="w-full px-4 py-2 text-left hover:bg-indigo-50 text-indigo-600 flex items-center space-x-2"
+            >
+                <FiEdit className="w-4 h-4" />
+                <span>{isEditing ? 'Save Edit' : 'Edit'}</span>
+            </button>
+            <button
+                onClick={handlePublish}
+                disabled={isPublishing}
+                className="w-full px-4 py-2 text-left hover:bg-indigo-50 text-indigo-600 flex items-center space-x-2"
+            >
+                <FiSend className="w-4 h-4" />
+                <span>Publish</span>
+            </button>
+            <button
+                onClick={() => {
+                setShowScheduleModal(true);
+                setShowMenu(false);
+                }}
+                className="w-full px-4 py-2 text-left hover:bg-indigo-50 text-indigo-600 flex items-center space-x-2"
+            >
+                <FiCalendar className="w-4 h-4" />
+                <span>Schedule</span>
+            </button>
+            </div>
+        )}
+        </div>
     );
 
     const renderTwitterPreview = () => (
         <div className="bg-white rounded-xl shadow-lg overflow-hidden relative">
-        <PublishButton />
-        {/* Rest of the Twitter preview code remains the same */}
+        {renderMenu()}
         <div className="p-7">
             <div className="flex space-x-3">
             <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-xl">
@@ -136,10 +292,19 @@
                 <span className="font-bold text-gray-900">{companyName}</span>
                 <span className="text-gray-500">@{companyName.toLowerCase().replace(/\s/g, '')}</span>
                 </div>
-                <div
-                className="mt-2 text-gray-900"
-                dangerouslySetInnerHTML={{ __html: formattedContent }}
+                {isEditing ? (
+                <textarea
+                    value={editedContent}
+                    onChange={(e) => setEditedContent(e.target.value)}
+                    className="w-full mt-2 p-2 border border-indigo-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    rows={4}
                 />
+                ) : (
+                <div
+                    className="mt-2 text-gray-900"
+                    dangerouslySetInnerHTML={{ __html: formattedContent }}
+                />
+                )}
                 {image && (
                 <div className="mt-3 rounded-xl overflow-hidden border border-gray-100">
                     <img src={image} alt="Post" className="w-full h-auto" />
@@ -188,13 +353,18 @@
         {notification && (
             <Notification type={notification.type} message={notification.message} />
         )}
+        {showScheduleModal && (
+            <ScheduleModal
+            onClose={() => setShowScheduleModal(false)}
+            onSchedule={handleSchedule}
+            />
+        )}
         </div>
     );
 
     const renderFacebookPreview = () => (
         <div className="bg-white rounded-xl shadow-lg overflow-hidden relative">
-        <PublishButton />
-        {/* Rest of the Facebook preview code remains the same */}
+        {renderMenu()}
         <div className="p-4 border-b border-gray-100">
             <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold">
@@ -211,13 +381,36 @@
             </div>
         </div>
         <div className="p-4">
-            <div
-            className="text-gray-900"
-            dangerouslySetInnerHTML={{ __html: formattedContent }}
+            {isEditing ? (
+            <textarea
+                value={editedContent}
+                onChange={(e) => setEditedContent(e.target.value)}
+                className="w-full mt-2 p-2 border border-indigo-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                rows={4}
             />
+            ) : (
+            <div
+                className="text-gray-900"
+                dangerouslySetInnerHTML={{ __html: formattedContent }}
+            />
+            )}
             {image && (
             <div className="mt-3 -mx-4 border-t border-b border-gray-100">
                 <img src={image} alt="Post" className="w-full h-auto" />
+            </div>
+            )}
+            {video && (
+            <div className="mt-3 -mx-4 border-t border-b border-gray-100">
+                <video src={video} controls className="w-full h-auto" />
+            </div>
+            )}
+            {pdf && (
+            <div className="mt-3 p-4 bg-indigo-50 border border-indigo-100 rounded-lg flex items-center space-x-3">
+                <FiFile className="w-6 h-6 text-indigo-600" />
+                <div>
+                <span className="text-sm font-medium text-indigo-900">Attached PDF</span>
+                <p className="text-xs text-indigo-600">Click to view document</p>
+                </div>
             </div>
             )}
         </div>
@@ -240,13 +433,18 @@
         {notification && (
             <Notification type={notification.type} message={notification.message} />
         )}
+        {showScheduleModal && (
+            <ScheduleModal
+            onClose={() => setShowScheduleModal(false)}
+            onSchedule={handleSchedule}
+            />
+        )}
         </div>
     );
 
     const renderLinkedInPreview = () => (
         <div className="bg-white rounded-xl shadow-lg overflow-hidden relative">
-        <PublishButton />
-        {/* Rest of the LinkedIn preview code remains the same */}
+        {renderMenu()}
         <div className="p-4 border-b border-gray-100">
             <div className="flex items-center space-x-3">
             <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-xl">
@@ -259,7 +457,16 @@
             </div>
         </div>
         <div className="p-4">
+            {isEditing ? (
+            <textarea
+                value={editedContent}
+                onChange={(e) => setEditedContent(e.target.value)}
+                className="w-full mt-2 p-2 border border-indigo-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                rows={4}
+            />
+            ) : (
             <div className="text-gray-900">{formattedContent}</div>
+            )}
             {image && (
             <div className="mt-3 -mx-4 border-t border-b border-gray-100">
                 <img src={image} alt="Post" className="w-full h-auto" />
@@ -310,6 +517,12 @@
         </div>
         {notification && (
             <Notification type={notification.type} message={notification.message} />
+        )}
+        {showScheduleModal && (
+            <ScheduleModal
+            onClose={() => setShowScheduleModal(false)}
+            onSchedule={handleSchedule}
+            />
         )}
         </div>
     );
