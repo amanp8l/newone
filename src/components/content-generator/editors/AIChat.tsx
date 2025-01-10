@@ -68,8 +68,7 @@ export const AIChat: React.FC<AIChatProps> = ({
           endpoint = '/api/rewrite_blog';
           payload = { feedback: prompt, blog: currentContent };
       }
-
-      const response = await axios.post(`https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io${endpoint}`, payload);
+      const response = await axios.post(`https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io${endpoint}`, payload);
       
       // Format the generated content before updating
       const formattedContent = formatPlatformContent(response.data);

@@ -80,7 +80,7 @@ export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) =>
 
           const platforms = ['linkedin', 'facebook', 'twitter'];
           const promises = platforms.map(async platform => {
-            const response = await axios.post(`https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/${platform}_post_by_image`, {
+            const response = await axios.post(`https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/${platform}_post_by_image`, {
               base64_image: base64Image,
               prompt
             });
@@ -114,7 +114,7 @@ export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) =>
         case 'ask-ai':
           const platforms = supportedPlatforms['ask-ai'];
           const promises = platforms.map(async platform => {
-            const response = await axios.post(`https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/${platform}_post_raw`, {
+            const response = await axios.post(`https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/${platform}_post_raw`, {
               raw_content: prompt
             });
             return response.data;
@@ -127,7 +127,7 @@ export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) =>
           break;
 
         case 'youtube-video':
-          const ytResponse = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/linkedin_post_by_youtube', {
+          const ytResponse = await axios.post('https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/linkedin_post_by_youtube', {
             yt_url: youtubeUrl,
             prompt
           });
@@ -135,7 +135,7 @@ export const AgentModal: React.FC<AgentModalProps> = ({ agentType, onClose }) =>
           break;
 
         case 'linkedin-style':
-          const linkedinResponse = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/linkedin_post_by_others', {
+          const linkedinResponse = await axios.post('https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/linkedin_post_by_others', {
             username: linkedinUsername,
             prompt
           });

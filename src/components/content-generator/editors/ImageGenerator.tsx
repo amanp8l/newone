@@ -50,7 +50,7 @@ export const ImageGenerator: React.FC<ImageGeneratorProps> = ({
     setIsGenerating(true);
     setError(null);
     try {
-      const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/generate_images_by_user', {
+      const response = await axios.post('https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/generate_images_by_user', {
         prompt: prompt.trim(),
         size: '1024x1024'
       });

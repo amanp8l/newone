@@ -51,7 +51,7 @@ export const BrandDocuments: React.FC<BrandDocumentsProps> = ({
             }
 
             // Make API call to create vector
-            const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/create_vector', {
+            const response = await axios.post('https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/create_vector', {
               base64_string: base64String,
               index_name: brandName,
               user_email: user.email
@@ -130,7 +130,7 @@ export const BrandDocuments: React.FC<BrandDocumentsProps> = ({
       new URL(url); // Validate URL format
       setUploadStatus('Adding URL...');
       
-      const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/create_vector_url', {
+      const response = await axios.post('https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/create_vector_url', {
         index_name: brandName,
         url: url,
         user_email: user.email

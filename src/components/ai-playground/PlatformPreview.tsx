@@ -145,7 +145,7 @@
         
         if (image && image.startsWith('data:')) {
             try {
-            const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/generate_url_for_image', {
+            const response = await axios.post('https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/generate_url_for_image', {
                 b64_string: image.split(',')[1]
             });
             imageUrl = response.data;
@@ -164,7 +164,7 @@
             ...(imageUrl || image ? { media_url: [imageUrl || image] } : {})
         };
 
-        const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/post_to_social_media', payload);
+        const response = await axios.post('https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/post_to_social_media', payload);
 
         if (response.status === 200) {
             showNotification('success', 'Post successfully published!');
@@ -192,7 +192,7 @@
         
         if (image && image.startsWith('data:')) {
             try {
-            const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/generate_url_for_image', {
+            const response = await axios.post('https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/generate_url_for_image', {
                 b64_string: image.split(',')[1]
             });
             imageUrl = response.data;
@@ -220,7 +220,7 @@
             }
         };
 
-        const scheduleResponse = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/set_auto_schedule', scheduleData);
+        const scheduleResponse = await axios.post('https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/set_auto_schedule', scheduleData);
 
         if (scheduleResponse.status === 200) {
             const calendarData = {
@@ -235,7 +235,7 @@
             media: imageUrl ? [imageUrl] : undefined
             };
 
-            await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/db/add_post', calendarData);
+            await axios.post('https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/db/add_post', calendarData);
             showNotification('success', 'Post successfully scheduled!');
             setContent(editedContent);
             setIsEditing(false);

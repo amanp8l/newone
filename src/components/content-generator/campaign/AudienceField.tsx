@@ -49,11 +49,14 @@ export const AudienceField: React.FC<AudienceFieldProps> = ({
 
     setIsLoading(true);
     try {
-      const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/audience', {
-        company: user?.company || '',
-        product: formData.brandName,
-        campaign: formData.objective
-      });
+      const response = await axios.post(
+        'https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/audience',
+        {
+          company: user?.company || '',
+          product: formData.brandName,
+          campaign: formData.objective
+        }
+      );
 
       if (response.data) {
         const cleanedText = cleanGeneratedText(response.data);

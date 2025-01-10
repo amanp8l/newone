@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api';
+const API_BASE_URL = 'https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api';
 
 export const login = async (email: string, password: string) => {
   try {

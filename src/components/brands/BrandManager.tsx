@@ -44,7 +44,7 @@ export const BrandManager: React.FC = () => {
       }
 
       try {
-        const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/db/get_products', {
+        const response = await axios.post('https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/db/get_products', {
           user_email: user.email,
           company_name: user.company || ''
         });

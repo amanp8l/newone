@@ -81,7 +81,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
   const generateBlogContent = async () => {
     setIsGenerating(true);
     try {
-      const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/gen_blog', {
+      const response = await axios.post('https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/gen_blog', {
         index_name: formData.companyName,
         company: formData.companyName,
         product: formData.products,
@@ -105,9 +105,9 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
     setIsGenerating(true);
     try {
       const [linkedinRes, twitterRes, facebookRes] = await Promise.all([
-        axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/linkedin_post', { blog: blogContent }),
-        axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/twitter_post', { blog: blogContent }),
-        axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/facebook_post', { blog: blogContent })
+        axios.post('https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/linkedin_post', { blog: blogContent }),
+        axios.post('https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/twitter_post', { blog: blogContent }),
+        axios.post('https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/facebook_post', { blog: blogContent })
       ]);
 
       setPlatformContent({

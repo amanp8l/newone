@@ -43,7 +43,7 @@
         setIsLoading(true);
         setError(null);
         try {
-        const response = await axios.post('https://marketing-agent.delightfulflower-b5c85228.eastus2.azurecontainerapps.io/api/get_videos', {
+        const response = await axios.post('https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/get_videos', {
             query: searchQuery,
             number_of_pics: 5
         });
