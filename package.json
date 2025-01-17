@@ -13,6 +13,8 @@
     "@headlessui/react": "^1.7.17",
     "autoprefixer": "^10.4.16",
     "axios": "^1.6.2",
+    "framer-motion": "^10.16.4",
+    "js-cookie": "^3.0.5",
     "postcss": "^8.4.31",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -20,10 +22,10 @@
     "react-icons": "^4.11.0",
     "react-router-dom": "^6.16.0",
     "tailwindcss": "^3.3.3",
-    "zustand": "^4.4.7",
-    "framer-motion": "^10.16.4"
+    "zustand": "^4.4.7"
   },
   "devDependencies": {
+    "@types/js-cookie": "^3.0.6",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.0.0",

@@ -82,19 +82,19 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
       id: 'pinterest', 
       name: 'Pinterest', 
       image: 'https://upload.wikimedia.org/wikipedia/commons/0/08/Pinterest-logo.png',
-      connected: false 
+      connected: false
     },
-    { 
-      id: 'youtube', 
-      name: 'YouTube', 
+    {
+      id: 'youtube',
+      name: 'YouTube',
       image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/YouTube_full-color_icon_%282017%29.svg/2560px-YouTube_full-color_icon_%282017%29.svg.png',
-      connected: false 
+      connected: false
     },
-    { 
-      id: 'telegram', 
-      name: 'Telegram', 
+    {
+      id: 'telegram',
+      name: 'Telegram',
       image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Telegram_logo.svg/2048px-Telegram_logo.svg.png',
-      connected: false 
+      connected: false
     }
   ];
 

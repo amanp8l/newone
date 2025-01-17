@@ -4,6 +4,7 @@ import { PlatformPreview } from './PlatformPreview';
 import { useAuthStore } from '../../store/authStore';
 import { backFormatter } from '../../utils/backFormatter';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 interface PreviewScreenProps {
   content: string;
@@ -122,8 +123,17 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
 
   const convertBase64ToUrl = async (base64String: string): Promise<string> => {
     try {
-      const response = await axios.post('https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/generate_url_for_image', {
+      const jwtToken = Cookies.get('jwt_token');
+      if (!jwtToken) {
+        throw new Error('No JWT token found');
+      }
+      const response = await axios.post('https://kimchi-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/generate_url_for_image', {
         b64_string: base64String.split(',')[1] // Remove data URL prefix
+      }, {
+        headers: {
+          'Authorization': `Bearer ${jwtToken}`,
+          'Content-Type': 'application/json'
+        }
       });
       return response.data;
     } catch (error) {
@@ -164,8 +174,17 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
       if (video) {
         try {
           if (video.startsWith('data:video')) {
-            const response = await axios.post('https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/generate_url_for_video', {
+            const jwtToken = Cookies.get('jwt_token');
+            if (!jwtToken) {
+              throw new Error('No JWT token found');
+            }
+            const response = await axios.post('https://kimchi-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/generate_url_for_video', {
               b64_string: video.split(',')[1]
+            }, {
+              headers: {
+                'Authorization': `Bearer ${jwtToken}`,
+                'Content-Type': 'application/json'
+              }
             });
             videoUrl = response.data;
           } else {
@@ -181,8 +200,17 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
       // Convert base64 PDF to URL if PDF exists
       if (pdf && pdf.startsWith('data:application')) {
         try {
-          const response = await axios.post('https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/generate_url_for_pdf', {
+          const jwtToken = Cookies.get('jwt_token');
+          if (!jwtToken) {
+            throw new Error('No JWT token found');
+          }
+          const response = await axios.post('https://kimchi-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/generate_url_for_pdf', {
             b64_string: pdf.split(',')[1]
+          }, {
+            headers: {
+              'Authorization': `Bearer ${jwtToken}`,
+              'Content-Type': 'application/json'
+            }
           });
           pdfUrl = response.data;
         } catch (error) {
@@ -196,13 +224,23 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
       // Prepare API payload with formatted content
       const formattedContent = backFormatter(content);
       const payload = {
-        user_email: user.email,
         platform: platform.toLowerCase(),
         post: formattedContent,
-        media_url: [imageUrl, videoUrl, pdfUrl].filter(Boolean)
+        brand_name: companyName,
+        media_url: [imageUrl, videoUrl, pdfUrl].filter(Boolean),
+        title: formattedContent
       };
 
-      const response = await axios.post('https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/post_to_social_media', payload);
+      const jwtToken = Cookies.get('jwt_token');
+      if (!jwtToken) {
+        throw new Error('No JWT token found');
+      }
+      const response = await axios.post('https://kimchi-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/post_to_social_media', payload, {
+        headers: {
+          'Authorization': `Bearer ${jwtToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
 
       if (response.status === 200) {
         showNotification('success', 'Post successfully published!');
@@ -247,10 +285,11 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
       // Prepare schedule data
       const scheduleData = {
         data: {
-          user_email: user.email,
           platform: platform.toLowerCase(),
           post: formattedContent,
-          media_url: imageUrl ? [imageUrl] : undefined
+          brand_name: companyName,
+          media_url: imageUrl ? [imageUrl] : undefined,
+          title: formattedContent
         },
         time: {
           year: scheduledDate.getFullYear(),
@@ -260,9 +299,17 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
           minutes: scheduledDate.getMinutes()
         }
       };
-
+      const jwtToken = Cookies.get('jwt_token');
+      if (!jwtToken) {
+        throw new Error('No JWT token found');
+      }
       // Schedule the post
-      const scheduleResponse = await axios.post('https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/set_auto_schedule', scheduleData);
+      const scheduleResponse = await axios.post('https://kimchi-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/set_auto_schedule', scheduleData, {
+        headers: {
+          'Authorization': `Bearer ${jwtToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
 
       if (scheduleResponse.status === 200) {
         // Prepare calendar data
@@ -273,12 +320,16 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
           hours: scheduledDate.getHours(),
           minutes: scheduledDate.getMinutes(),
           platform: platform.toLowerCase(),
-          user_email: user.email,
           content: formattedContent,
           media: imageUrl ? [imageUrl] : undefined
         };
 
-        await axios.post('https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/db/add_post', calendarData);
+        await axios.post('https://kimchi-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/db/add_post', calendarData,  {
+          headers: {
+            'Authorization': `Bearer ${jwtToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
 
         showNotification('success', 'Post successfully scheduled!');
       }
