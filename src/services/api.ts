@@ -111,19 +111,23 @@ export const signup = async (email: string, password: string, company: string) =
       throw new Error('Invalid response from server');
     }
 
+    // Convert refresh token to JWT and save it
+    const jwtToken = await convertToJWT(response.data.refresh_token);
+
+    // Start the token refresh interval
+    startTokenRefreshInterval(response.data.refresh_token);
+
     // Create user profile after successful signup
     await createUserProfile(email, company);
 
-    // Don't start token refresh or set JWT - user needs to login first
-    return {
-      success: true,
-      message: 'Signup successful! Please login to continue.',
-      redirectTo: '/login',
-      userData: {
-        email: response.data.user_email,
-        company
-      }
+    // Include email and company in userData
+    const userData = {
+      email: response.data.user_email,
+      company,
+      logo: null
     };
+
+    return { ...response.data, userData, jwt_token: jwtToken };
   } catch (error: any) {
     throw new Error(error.response?.data?.message || 'Signup failed');
   }
