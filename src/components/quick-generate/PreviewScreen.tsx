@@ -4,7 +4,6 @@ import { PlatformPreview } from './PlatformPreview';
 import { useAuthStore } from '../../store/authStore';
 import { backFormatter } from '../../utils/backFormatter';
 import axios from 'axios';
-import Cookies from 'js-cookie';
 
 interface PreviewScreenProps {
   content: string;
@@ -123,17 +122,8 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
 
   const convertBase64ToUrl = async (base64String: string): Promise<string> => {
     try {
-      const jwtToken = Cookies.get('jwt_token');
-      if (!jwtToken) {
-        throw new Error('No JWT token found');
-      }
       const response = await axios.post('https://kimchi-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/generate_url_for_image', {
-        b64_string: base64String.split(',')[1] // Remove data URL prefix
-      }, {
-        headers: {
-          'Authorization': `Bearer ${jwtToken}`,
-          'Content-Type': 'application/json'
-        }
+        b64_string: base64String.split(',')[1]
       });
       return response.data;
     } catch (error) {
@@ -151,18 +141,15 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
     setIsPublishing(true);
 
     try {
-      let imageUrl: string | null = null;
-      let videoUrl: string | null = null;
-      let pdfUrl: string | null = null;
+      let mediaUrls: string[] = [];
       
-      // Convert base64 image to URL if image exists and is base64
+      // Process image
       if (image) {
         try {
-          if (image.startsWith('data:image')) {
-            imageUrl = await convertBase64ToUrl(image);
-          } else {
-            imageUrl = image;
-          }
+          const imageUrl = image.startsWith('data:image') 
+            ? await convertBase64ToUrl(image)
+            : image;
+          mediaUrls.push(imageUrl);
         } catch (error) {
           console.error('Error converting image:', error);
           showNotification('error', 'Failed to process image');
@@ -171,24 +158,17 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
         }
       }
 
+      // Process video
       if (video) {
         try {
           if (video.startsWith('data:video')) {
-            const jwtToken = Cookies.get('jwt_token');
-            if (!jwtToken) {
-              throw new Error('No JWT token found');
-            }
-            const response = await axios.post('https://kimchi-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/generate_url_for_video', {
-              b64_string: video.split(',')[1]
-            }, {
-              headers: {
-                'Authorization': `Bearer ${jwtToken}`,
-                'Content-Type': 'application/json'
-              }
-            });
-            videoUrl = response.data;
+            const response = await axios.post(
+              'https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/generate_url_for_video',
+              { b64_string: video.split(',')[1] }
+            );
+            mediaUrls.push(response.data);
           } else {
-            videoUrl = video;
+            mediaUrls.push(video);
           }
         } catch (error) {
           console.error('Error converting video:', error);
@@ -197,22 +177,15 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
           return;
         }
       }
-      // Convert base64 PDF to URL if PDF exists
+
+      // Process PDF
       if (pdf && pdf.startsWith('data:application')) {
         try {
-          const jwtToken = Cookies.get('jwt_token');
-          if (!jwtToken) {
-            throw new Error('No JWT token found');
-          }
-          const response = await axios.post('https://kimchi-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/generate_url_for_pdf', {
-            b64_string: pdf.split(',')[1]
-          }, {
-            headers: {
-              'Authorization': `Bearer ${jwtToken}`,
-              'Content-Type': 'application/json'
-            }
-          });
-          pdfUrl = response.data;
+          const response = await axios.post(
+            'https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/generate_url_for_pdf',
+            { b64_string: pdf.split(',')[1] },
+          );
+          mediaUrls.push(response.data);
         } catch (error) {
           console.error('Error converting PDF:', error);
           showNotification('error', 'Failed to process PDF');
@@ -221,26 +194,25 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
         }
       }
 
-      // Prepare API payload with formatted content
+      // Prepare API payload
       const formattedContent = backFormatter(content);
-      const payload = {
+      const payload: any = {
+        user_email: user.email,
         platform: platform.toLowerCase(),
         post: formattedContent,
         brand_name: companyName,
-        media_url: [imageUrl, videoUrl, pdfUrl].filter(Boolean),
         title: formattedContent
       };
 
-      const jwtToken = Cookies.get('jwt_token');
-      if (!jwtToken) {
-        throw new Error('No JWT token found');
+      // Only add media_url if there are media files
+      if (mediaUrls.length > 0) {
+        payload.media_url = mediaUrls;
       }
-      const response = await axios.post('https://kimchi-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/post_to_social_media', payload, {
-        headers: {
-          'Authorization': `Bearer ${jwtToken}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      
+      const response = await axios.post(
+        'https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/post_to_social_media',
+        payload
+      );
 
       if (response.status === 200) {
         showNotification('success', 'Post successfully published!');
@@ -261,16 +233,15 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
     setIsPublishing(true);
 
     try {
-      let imageUrl: string | null = null;
+      let mediaUrls: string[] = [];
       
-      // Convert base64 image to URL if image exists and is base64
+      // Process image
       if (image) {
         try {
-          if (image.startsWith('data:')) {
-            imageUrl = await convertBase64ToUrl(image);
-          } else {
-            imageUrl = image;
-          }
+          const imageUrl = image.startsWith('data:') 
+            ? await convertBase64ToUrl(image)
+            : image;
+          mediaUrls.push(imageUrl);
         } catch (error) {
           console.error('Error converting image:', error);
           showNotification('error', 'Failed to process image');
@@ -279,16 +250,15 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
         }
       }
 
-      // Prepare formatted content
       const formattedContent = backFormatter(content);
-
+      
       // Prepare schedule data
-      const scheduleData = {
+      const scheduleData: any = {
         data: {
+          user_email: user.email,
           platform: platform.toLowerCase(),
           post: formattedContent,
           brand_name: companyName,
-          media_url: imageUrl ? [imageUrl] : undefined,
           title: formattedContent
         },
         time: {
@@ -299,37 +269,39 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
           minutes: scheduledDate.getMinutes()
         }
       };
-      const jwtToken = Cookies.get('jwt_token');
-      if (!jwtToken) {
-        throw new Error('No JWT token found');
+
+      // Only add media_url if there are media files
+      if (mediaUrls.length > 0) {
+        scheduleData.data.media_url = mediaUrls;
       }
-      // Schedule the post
-      const scheduleResponse = await axios.post('https://kimchi-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/set_auto_schedule', scheduleData, {
-        headers: {
-          'Authorization': `Bearer ${jwtToken}`,
-          'Content-Type': 'application/json'
-        }
-      });
+
+      const scheduleResponse = await axios.post(
+        'https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/set_auto_schedule',
+        scheduleData
+      );
 
       if (scheduleResponse.status === 200) {
         // Prepare calendar data
-        const calendarData = {
+        const calendarData: any = {
           year: scheduledDate.getFullYear(),
           month: scheduledDate.getMonth() + 1,
           day: scheduledDate.getDate(),
           hours: scheduledDate.getHours(),
           minutes: scheduledDate.getMinutes(),
           platform: platform.toLowerCase(),
-          content: formattedContent,
-          media: imageUrl ? [imageUrl] : undefined
+          user_email: user.email,
+          content: formattedContent
         };
 
-        await axios.post('https://kimchi-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/db/add_post', calendarData,  {
-          headers: {
-            'Authorization': `Bearer ${jwtToken}`,
-            'Content-Type': 'application/json'
-          }
-        });
+        // Only add media if there are media files
+        if (mediaUrls.length > 0) {
+          calendarData.media = mediaUrls;
+        }
+
+        await axios.post(
+          'https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/db/add_post',
+          calendarData
+        );
 
         showNotification('success', 'Post successfully scheduled!');
       }

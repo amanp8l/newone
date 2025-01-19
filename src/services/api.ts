@@ -2,13 +2,13 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 
 const API_BASE_URL = 'https://kimchi-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api';
-const REFRESH_INTERVAL = 19 * 60 * 1000; // 19 minutes in milliseconds
-let refreshTokenInterval: NodeJS.Timeout | null = null;
+const POLLING_INTERVAL = 19 * 60 * 1000; // 19 minutes in milliseconds
+let pollingInterval: NodeJS.Timeout | null = null;
 
 // Store refresh token in memory (consider more secure storage in production)
 let currentRefreshToken: string | null = null;
 
-const convertToJWT = async (refreshToken: string) => {
+const pollRefreshToken = async (refreshToken: string) => {
   try {
     const response = await axios.post(
       `${API_BASE_URL}/refresh_token?refresh_token=${encodeURIComponent(refreshToken)}`
@@ -19,42 +19,49 @@ const convertToJWT = async (refreshToken: string) => {
       Cookies.set('jwt_token', response.data.access_token);
       return response.data.access_token;
     }
-    throw new Error('Failed to convert refresh token to JWT');
+    throw new Error('Failed to get new JWT token from polling');
   } catch (error) {
-    console.error('Error converting refresh token:', error);
+    console.error('Error polling refresh token:', error);
     throw error;
   }
 };
 
-const startTokenRefreshInterval = (refreshToken: string) => {
-  // Clear any existing interval
-  if (refreshTokenInterval) {
-    clearInterval(refreshTokenInterval);
+const startTokenPolling = (refreshToken: string) => {
+  // Clear any existing polling interval
+  if (pollingInterval) {
+    clearInterval(pollingInterval);
   }
 
   // Store refresh token
   currentRefreshToken = refreshToken;
 
-  // Set up periodic refresh
-  refreshTokenInterval = setInterval(async () => {
+  // Initial poll to get first JWT token
+  pollRefreshToken(refreshToken).catch(error => {
+    console.error('Initial token poll failed:', error);
+    stopTokenPolling();
+    logout();
+  });
+
+  // Set up polling
+  pollingInterval = setInterval(async () => {
     try {
       if (currentRefreshToken) {
-        await convertToJWT(currentRefreshToken);
-        console.log('JWT token refreshed successfully');
+        await pollRefreshToken(currentRefreshToken);
+        console.log('JWT token updated successfully via polling');
       }
     } catch (error) {
-      console.error('Failed to refresh JWT token:', error);
-      // Handle refresh failure (e.g., force logout if refresh fails)
-      stopTokenRefresh();
+      console.error('Failed to poll for new JWT token:', error);
+      // Handle polling failure (e.g., force logout if refresh fails)
+      stopTokenPolling();
       logout();
     }
-  }, REFRESH_INTERVAL);
+  }, POLLING_INTERVAL);
 };
 
-const stopTokenRefresh = () => {
-  if (refreshTokenInterval) {
-    clearInterval(refreshTokenInterval);
-    refreshTokenInterval = null;
+const stopTokenPolling = () => {
+  if (pollingInterval) {
+    clearInterval(pollingInterval);
+    pollingInterval = null;
   }
   currentRefreshToken = null;
 };
@@ -75,11 +82,9 @@ export const login = async (email: string, password: string) => {
       throw new Error('Invalid response from server');
     }
 
-    // Convert refresh token to JWT and save it
-    const jwtToken = await convertToJWT(response.data.refresh_token);
-
-    // Start the token refresh interval
-    startTokenRefreshInterval(response.data.refresh_token);
+    // Get initial JWT token and start polling
+    const jwtToken = await pollRefreshToken(response.data.refresh_token);
+    startTokenPolling(response.data.refresh_token);
 
     // Include email in userData
     const userData = {
@@ -111,11 +116,9 @@ export const signup = async (email: string, password: string, company: string) =
       throw new Error('Invalid response from server');
     }
 
-    // Convert refresh token to JWT and save it
-    const jwtToken = await convertToJWT(response.data.refresh_token);
-
-    // Start the token refresh interval
-    startTokenRefreshInterval(response.data.refresh_token);
+    // Get initial JWT token and start polling
+    const jwtToken = await pollRefreshToken(response.data.refresh_token);
+    startTokenPolling(response.data.refresh_token);
 
     // Create user profile after successful signup
     await createUserProfile(email, company);
@@ -134,8 +137,8 @@ export const signup = async (email: string, password: string, company: string) =
 };
 
 export const logout = () => {
-  // Stop the token refresh interval
-  stopTokenRefresh();
+  // Stop the token polling
+  stopTokenPolling();
   // Remove JWT token from cookies on logout
   Cookies.remove('jwt_token');
 };
