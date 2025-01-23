@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FiMic, FiPhoneCall, FiPhoneOff, FiMessageSquare } from 'react-icons/fi';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 export const InboundCall: React.FC = () => {
   const [isCallActive, setIsCallActive] = useState(false);
