@@ -122,7 +122,7 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({
 
   const convertBase64ToUrl = async (base64String: string): Promise<string> => {
     try {
-      const response = await axios.post('https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/generate_url_for_image', {
+      const response = await axios.post('https://kimchi-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/generate_url_for_image', {
         b64_string: base64String.split(',')[1]
       });
       return response.data;

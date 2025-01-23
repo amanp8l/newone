@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FiHome, FiZap, FiPieChart, FiCalendar, FiBriefcase, FiHelpCircle, FiShare2, FiTrendingUp } from 'react-icons/fi';
+import { FiHome, FiZap, FiPieChart, FiCalendar, FiBriefcase, FiHelpCircle, FiShare2, FiTrendingUp, FiVideo, FiMic } from 'react-icons/fi';
 
 export const Sidebar: React.FC = () => {
   const navigate = useNavigate();
@@ -11,7 +11,9 @@ export const Sidebar: React.FC = () => {
     { icon: <FiBriefcase />, text: "Brands", path: "/brands" },
     { icon: <FiTrendingUp />, text: "Trends", path: "/trends" },
     { icon: <FiZap />, text: "AI Agents", path: "/ai-playground" },
+    { icon: <FiMic />, text: "Voice Agent", path: "/voice-agent" },
     { icon: <FiShare2 />, text: "Platforms", path: "/platforms" },
+    { icon: <FiVideo />, text: "Video to Reel", path: "/video-to-reel" },
     { icon: <FiPieChart />, text: "Analytics", path: "/analytics" },
     { icon: <FiCalendar />, text: "Calendar", path: "/calendar" },
     { icon: <FiHelpCircle />, text: "Help", path: "/help" }
