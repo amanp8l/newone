@@ -1,6 +1,9 @@
 import { useState } from 'react';
+import axios from 'axios';
 import { FiPhone, FiX, FiMic, FiGlobe, FiUser, FiMessageCircle } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
+import Cookies from 'js-cookie';
+
 
 const countryCodes = [
   { code: '+1', country: 'United States' },
@@ -13,6 +16,7 @@ const countryCodes = [
 
 export const OutboundCall = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [username, setUsername] = useState('');
   const [selectedCountry, setSelectedCountry] = useState(countryCodes[0]);
   const [showCountryList, setShowCountryList] = useState(false);
   const [isCallActive, setIsCallActive] = useState(false);
@@ -25,23 +29,47 @@ export const OutboundCall = () => {
     setPhoneNumber(prev => prev.slice(0, -1));
   };
 
-  const handleCall = () => {
-    if (phoneNumber) {
-      setIsCallActive(true);
+  const handleCall = async () => {
+    if (phoneNumber && username) {
+      try {
+        const jwtToken = Cookies.get('jwt_token');
+        if (!jwtToken) {
+        throw new Error('No JWT token found');
+        }
+        const response = await axios.post(
+          'https://kimchi-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/call_users', 
+          [{ 
+            phone_number: `${selectedCountry.code}${phoneNumber}`, 
+            username: username 
+          }],
+          {
+            headers: {
+            'Authorization': `Bearer ${jwtToken}`,
+            'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        if (response.data.message === "Calls initiated successfully") {
+          alert('Call Initiated Successfully!');
+          setIsCallActive(true);
+        }
+      } catch (error) {
+        alert('Failed to Initiate Call');
+        console.error('Call initiation error:', error);
+      }
     }
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-5xl ">
+    <div className="container mx-auto px-4 py-8 max-w-5xl">
       <div className="flex flex-col lg:flex-row gap-6">
-        {/* Left Column - Dialer */}
         <div className="flex-1">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="bg-white rounded-2xl shadow-xl p-6"
           >
-            {/* Country Code Selector */}
             <div className="relative mb-6">
               <button
                 onClick={() => setShowCountryList(!showCountryList)}
@@ -81,14 +109,22 @@ export const OutboundCall = () => {
               </AnimatePresence>
             </div>
 
-            {/* Phone Number Display */}
+            <div className="bg-gradient-to-r from-indigo-50 to-pink-50 p-4 rounded-xl mb-6">
+              <input 
+                type="text" 
+                placeholder="Enter Username" 
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full bg-transparent text-indigo-900 text-2xl font-medium text-center placeholder-indigo-600 focus:outline-none"
+              />
+            </div>
+
             <div className="bg-gradient-to-r from-indigo-50 to-pink-50 p-4 rounded-xl mb-6">
               <div className="text-2xl font-medium text-indigo-900 text-center">
                 {selectedCountry.code} {phoneNumber || 'Enter Phone Number'}
               </div>
             </div>
 
-            {/* Dialer Grid */}
             <div className="grid grid-cols-4 gap-4 mb-6">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, '*', 0, '#'].map((num) => (
                 <motion.button
@@ -103,7 +139,6 @@ export const OutboundCall = () => {
               ))}
             </div>
 
-            {/* Action Buttons */}
             <div className="flex justify-between items-center">
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -118,9 +153,9 @@ export const OutboundCall = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleCall}
-                disabled={!phoneNumber}
+                disabled={!phoneNumber || !username}
                 className={`px-8 py-4 rounded-xl flex items-center space-x-2 ${
-                  phoneNumber
+                  phoneNumber && username
                     ? 'bg-gradient-to-r from-indigo-500 to-pink-500 text-white'
                     : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                 }`}
@@ -140,7 +175,6 @@ export const OutboundCall = () => {
           </motion.div>
         </div>
 
-        {/* Right Column - Agent Info Card */}
         <div className="lg:w-96">
           <motion.div
             initial={{ opacity: 0, x: 20 }}
@@ -190,7 +224,6 @@ export const OutboundCall = () => {
         </div>
       </div>
 
-      {/* Call Modal */}
       <AnimatePresence>
         {isCallActive && (
           <motion.div
