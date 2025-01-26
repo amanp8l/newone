@@ -2,7 +2,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 
 const API_BASE_URL = 'https://kimchi-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api';
-const POLLING_INTERVAL = 19 * 60 * 1000; // 19 minutes in milliseconds
+const POLLING_INTERVAL = 10 * 60 * 1000; // 19 minutes in milliseconds
 let pollingInterval: NodeJS.Timeout | null = null;
 
 // Store refresh token in memory (consider more secure storage in production)
@@ -120,9 +120,6 @@ export const signup = async (email: string, password: string, company: string) =
     const jwtToken = await pollRefreshToken(response.data.refresh_token);
     startTokenPolling(response.data.refresh_token);
 
-    // Create user profile after successful signup
-    await createUserProfile(email, company);
-
     // Include email and company in userData
     const userData = {
       email: response.data.user_email,
@@ -141,27 +138,4 @@ export const logout = () => {
   stopTokenPolling();
   // Remove JWT token from cookies on logout
   Cookies.remove('jwt_token');
-};
-
-export const createUserProfile = async (user_email: string, company_name: string) => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/create_user_profile`, {
-      user_email,
-      company_name
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
-    });
-
-    if (!response.data) {
-      throw new Error('Failed to create user profile');
-    }
-
-    return response.data;
-  } catch (error: any) {
-    console.error('Error creating user profile:', error);
-    throw new Error(error.response?.data?.message || 'Failed to create user profile');
-  }
 };

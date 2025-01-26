@@ -5,6 +5,7 @@ import { useAuthStore } from '../../store/authStore';
 import axios from 'axios';
 import { BrandDetails } from './BrandDetails';
 import { BrandDocuments } from './BrandDocuments';
+import Cookies from 'js-cookie';
 
 interface BrandFormProps {
   onSubmit: (brand: Omit<Brand, 'id'>) => void;
@@ -58,7 +59,13 @@ export const BrandForm: React.FC<BrandFormProps> = ({
     setError(null);
 
     try {
-      const response = await axios.post('https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/db/add_product', {
+
+      const jwtToken = Cookies.get('jwt_token');
+      if (!jwtToken) {
+        throw new Error('No JWT token found');
+      }
+      // First API request to create product
+      const productResponse = await axios.post('https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/db/add_product', {
         user_email: user.email,
         product_name: formData.name,
         company_name: user.company || '',
@@ -70,7 +77,20 @@ export const BrandForm: React.FC<BrandFormProps> = ({
         description: formData.description
       });
 
-      if (response.status !== 200) {
+      // Second API request to create user profile
+      await axios.post('https://kimchi-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/create_user_profile',
+        {
+          brand_name: formData.name
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${jwtToken}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (productResponse.status !== 200) {
         throw new Error('Failed to create brand');
       }
 

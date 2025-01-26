@@ -3,6 +3,7 @@ import { FiBriefcase, FiPlus, FiChevronDown } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../../store/authStore';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 interface BrandSelectorProps {
   formData: {
@@ -14,11 +15,6 @@ interface BrandSelectorProps {
   showValidation: boolean;
 }
 
-interface Brand {
-  product_name: string;
-  description: string;
-  industry: string;
-}
 
 export const BrandSelector: React.FC<BrandSelectorProps> = ({
   formData,
@@ -27,7 +23,7 @@ export const BrandSelector: React.FC<BrandSelectorProps> = ({
 }) => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-  const [brands, setBrands] = useState<Brand[]>([]);
+  const [brands, setBrands] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuthStore();
@@ -36,17 +32,29 @@ export const BrandSelector: React.FC<BrandSelectorProps> = ({
     const fetchBrands = async () => {
       if (!user?.email) return;
 
+      const jwtToken = Cookies.get('jwt_token');
+      if (!jwtToken) return;
+
       setIsLoading(true);
       setError(null);
 
       try {
-        const response = await axios.post('https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/db/get_products', {
-          user_email: user.email,
-          company_name: user.company || ''
-        });
+        const response = await axios.post(
+          'https://kimchi-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/fetch_connected_accounts', 
+          {},
+          {
+            headers: {
+              'Authorization': `Bearer ${jwtToken}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
 
-        if (response.data) {
-          setBrands(response.data);
+        if (response.data?.result) {
+          const brandNames = Object.keys(response.data.result).filter(key => 
+            Array.isArray(response.data.result[key])
+          );
+          setBrands(brandNames);
         }
       } catch (err) {
         console.error('Error fetching brands:', err);
@@ -57,18 +65,18 @@ export const BrandSelector: React.FC<BrandSelectorProps> = ({
     };
 
     fetchBrands();
-  }, [user?.email, user?.company]);
+  }, [user?.email]);
 
-  const handleBrandSelect = (brand: Brand | 'add-new') => {
+  const handleBrandSelect = (brand: string | 'add-new') => {
     if (brand === 'add-new') {
       navigate('/brands');
       return;
     }
 
     onInputChange({
-      name: brand.product_name,
-      description: brand.description,
-      industry: brand.industry
+      name: brand,
+      description: '', // Add appropriate description retrieval if needed
+      industry: '' // Add appropriate industry retrieval if needed
     });
     setIsOpen(false);
   };
@@ -109,9 +117,9 @@ export const BrandSelector: React.FC<BrandSelectorProps> = ({
               </div>
             ) : brands.length > 0 ? (
               <>
-                {brands.map((brand, index) => (
+                {brands.map((brand) => (
                   <button
-                    key={`${brand.product_name}-${index}`}
+                    key={brand}
                     onClick={() => handleBrandSelect(brand)}
                     className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 transition-colors"
                   >
@@ -119,8 +127,7 @@ export const BrandSelector: React.FC<BrandSelectorProps> = ({
                       <FiBriefcase className="w-4 h-4 text-indigo-600" />
                     </div>
                     <div className="text-left">
-                      <div className="text-indigo-900 font-medium">{brand.product_name}</div>
-                      <div className="text-xs text-indigo-500">{brand.industry}</div>
+                      <div className="text-indigo-900 font-medium">{brand}</div>
                     </div>
                   </button>
                 ))}
