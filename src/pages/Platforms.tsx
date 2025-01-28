@@ -24,6 +24,47 @@ const platformIcons: { [key: string]: string } = {
 
 const allPlatforms = Object.keys(platformIcons);
 
+const apiService = {
+  baseUrl: 'https://kimchi-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api',
+
+  getAuthHeaders() {
+    const jwtToken = Cookies.get('jwt_token');
+    if (!jwtToken) {
+      throw new Error('No JWT token found');
+    }
+    return {
+      'Authorization': `Bearer ${jwtToken}`,
+      'Content-Type': 'application/json'
+    };
+  },
+
+  async fetchConnectedAccounts() {
+    try {
+      const response = await axios.post(
+        `${this.baseUrl}/fetch_connected_accounts`,
+        {},
+        { headers: this.getAuthHeaders() }
+      );
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch connected accounts');
+    }
+  },
+
+  async generatePlatformToken(brandName: string) {
+    try {
+      const response = await axios.post(
+        `${this.baseUrl}/generate_jwt_token`,
+        { brand_name: brandName },
+        { headers: this.getAuthHeaders() }
+      );
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to generate platform token');
+    }
+  }
+};
+
 export const Platforms: React.FC = () => {
   const navigate = useNavigate();
   const [connectedPlatforms, setConnectedPlatforms] = useState<ConnectedPlatforms>({});
@@ -31,61 +72,40 @@ export const Platforms: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchConnectedAccounts = async () => {
+    const fetchPlatforms = async () => {
       try {
-        const jwtToken = Cookies.get('jwt_token');
-        if (!jwtToken) {
-          throw new Error('No JWT token found');
-        }
-
-        const response = await axios.post(
-          'https://kimchi-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/fetch_connected_accounts',
-          {},
-          {
-            headers: {
-              'Authorization': `Bearer ${jwtToken}`,
-              'Content-Type': 'application/json'
-            }
-          }
-        );
-        
-        if (response.data?.result) {
-          setConnectedPlatforms(response.data.result);
+        const response = await apiService.fetchConnectedAccounts();
+        if (response.result) {
+          setConnectedPlatforms(response.result);
         }
       } catch (err: any) {
-        console.error('Error fetching connected accounts:', err);
-        setError(err.message || 'Failed to fetch connected accounts');
+        console.error('Error fetching platforms:', err);
+        setError(err.message);
+        if (err.message.includes('unauthorized') || err.message.includes('jwt')) {
+          Cookies.remove('jwt_token');
+          navigate('/login');
+        }
       } finally {
         setLoading(false);
       }
     };
 
-    fetchConnectedAccounts();
-  }, []);
+    fetchPlatforms();
+  }, [navigate]);
 
   const handleConnectMore = async (brandName: string) => {
     try {
-      const jwtToken = Cookies.get('jwt_token');
-      if (!jwtToken) {
-        throw new Error('No JWT token found');
+      const response = await apiService.generatePlatformToken(brandName);
+      if (response.url) {
+        window.open(response.url, '_blank');
       }
-
-      const response = await axios.post(
-        'https://kimchi-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/generate_jwt_token',
-        { brand_name: brandName },
-        {
-          headers: {
-            'Authorization': `Bearer ${jwtToken}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      if (response.data?.url) {
-        window.open(response.data.url, '_blank');
+    } catch (err: any) {
+      console.error('Error connecting platform:', err);
+      setError(err.message);
+      if (err.message.includes('unauthorized') || err.message.includes('jwt')) {
+        Cookies.remove('jwt_token');
+        navigate('/login');
       }
-    } catch (err) {
-      console.error('Error generating token:', err);
     }
   };
 
@@ -216,3 +236,5 @@ export const Platforms: React.FC = () => {
     </div>
   );
 };
+
+export default Platforms;
