@@ -1,5 +1,6 @@
     import React from 'react';
     import { FiThumbsUp } from 'react-icons/fi';
+    import {VideoEditor} from './VideoEditor';
 
     interface Video {
     viralScore: string;
@@ -19,6 +20,7 @@
 
     export const ReelResults: React.FC<ReelResultsProps> = ({ videos }) => {
     const [selectedVideo, setSelectedVideo] = React.useState(videos[0]);
+    const [editMode, setEditMode] = React.useState(false);
 
     const getTopics = (topicString: string): string[] => {
         return topicString.split(',').map(topic => topic.trim());
@@ -41,8 +43,14 @@
         }
     };
 
+    const handleVideoEditor = () => {
+        setEditMode(true);
+    };
+
     return (
-        <div className="h-screen bg-gray-50 overflow-hidden">
+        editMode ? <VideoEditor selectedURL={selectedVideo.videoUrl} setEditMode={setEditMode} />
+        :
+        (<div className="h-screen bg-gray-50 overflow-hidden">
         <div className="grid grid-cols-[260px_1fr_320px] gap-4 p-4 h-full">
             {/* Left Sidebar - Scrollable */}
             <div className="overflow-y-auto h-full pr-2">
@@ -91,7 +99,8 @@
                 >
                 Export
                 </button>
-                <button className="px-4 py-2 bg-white rounded-lg hover:bg-gray-50 text-gray-700 border border-gray-200">
+                <button className="px-4 py-2 bg-white rounded-lg hover:bg-gray-50 text-gray-700 border border-gray-200"
+                onClick={handleVideoEditor}>
                 Edit
                 </button>
             </div>
@@ -144,7 +153,7 @@
             </div>
             </div>
         </div>
-        </div>
+        </div>)
     );
     };
 
