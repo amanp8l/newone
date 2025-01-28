@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ScheduledPost } from './ScheduledPost';
 import { useAuthStore } from '../../store/authStore';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 
 interface CalendarGridProps {
@@ -32,8 +33,17 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({ currentDate }) => {
 
       try {
 
-        const response = await axios.post('https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/db/get_posts', {
+        const jwtToken = Cookies.get('jwt_token');
+        if (!jwtToken) {
+          throw new Error('No JWT token found');
+        }
+        const response = await axios.post('https://kimchi-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/db/get_posts', {
           email: user.email,
+        }, {
+          headers: {
+            'Authorization': `Bearer ${jwtToken}`,
+            'Content-Type': 'application/json'
+          }
         });
 
         if (response.data) {

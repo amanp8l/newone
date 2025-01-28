@@ -1,4 +1,4 @@
-import axios from 'axios';
+
 import React, { useRef, useState } from 'react';
 import { FiArrowLeft, FiArrowRight, FiImage, FiX, FiVideo, FiFile } from 'react-icons/fi';
 import { useAuthStore } from '../../store/authStore';
@@ -22,7 +22,6 @@ interface Platform {
   id: string;
   name: string;
   image: string;
-  connected: boolean;
 }
 
 export const DraftEditor: React.FC<DraftEditorProps> = ({
@@ -42,8 +41,6 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
   const [showPlatformSelect, setShowPlatformSelect] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<string>('');
-  const [connectedPlatforms, setConnectedPlatforms] = useState<string[]>([]);
-  const [, setIsLoadingPlatforms] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const pdfInputRef = useRef<HTMLInputElement>(null);
 
@@ -51,76 +48,44 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
     { 
       id: 'twitter', 
       name: 'X (Twitter)', 
-      image: 'https://upload.wikimedia.org/wikipedia/commons/5/53/X_logo_2023_original.svg',
-      connected: false 
+      image: 'https://upload.wikimedia.org/wikipedia/commons/5/53/X_logo_2023_original.svg'
     },
     { 
       id: 'facebook', 
       name: 'Facebook', 
-      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Facebook_Logo_%282019%29.png/1200px-Facebook_Logo_%282019%29.png',
-      connected: false 
+      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Facebook_Logo_%282019%29.png/1200px-Facebook_Logo_%282019%29.png'
     },
     { 
       id: 'linkedin', 
       name: 'LinkedIn', 
-      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/LinkedIn_logo_initials.png/800px-LinkedIn_logo_initials.png',
-      connected: false 
+      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/LinkedIn_logo_initials.png/800px-LinkedIn_logo_initials.png'
     },
     { 
       id: 'instagram', 
       name: 'Instagram', 
-      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Instagram_logo_2016.svg/2048px-Instagram_logo_2016.svg.png',
-      connected: false 
+      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Instagram_logo_2016.svg/2048px-Instagram_logo_2016.svg.png'
     },
     { 
       id: 'tiktok', 
       name: 'TikTok', 
-      image: 'https://upload.wikimedia.org/wikipedia/commons/3/34/Ionicons_logo-tiktok.svg',
-      connected: false 
+      image: 'https://upload.wikimedia.org/wikipedia/commons/3/34/Ionicons_logo-tiktok.svg'
     },
     { 
       id: 'pinterest', 
       name: 'Pinterest', 
-      image: 'https://upload.wikimedia.org/wikipedia/commons/0/08/Pinterest-logo.png',
-      connected: false
+      image: 'https://upload.wikimedia.org/wikipedia/commons/0/08/Pinterest-logo.png'
     },
     {
       id: 'youtube',
       name: 'YouTube',
-      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/YouTube_full-color_icon_%282017%29.svg/2560px-YouTube_full-color_icon_%282017%29.svg.png',
-      connected: false
+      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/YouTube_full-color_icon_%282017%29.svg/2560px-YouTube_full-color_icon_%282017%29.svg.png'
     },
     {
       id: 'telegram',
       name: 'Telegram',
-      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Telegram_logo.svg/2048px-Telegram_logo.svg.png',
-      connected: false
+      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Telegram_logo.svg/2048px-Telegram_logo.svg.png'
     }
   ];
-
-  const fetchConnectedPlatforms = async () => {
-    if (!user?.email || !user?.company) return;
-    
-    setIsLoadingPlatforms(true);
-    try {
-      const response = await axios.post('https://marketing-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api/fetch_connected_accounts', {
-        user_email: user.email,
-        company_name: user.company
-      });
-      
-      if (response.data?.result) {
-        setConnectedPlatforms(response.data.result);
-      }
-    } catch (error) {
-      console.error('Error fetching connected platforms:', error);
-    } finally {
-      setIsLoadingPlatforms(false);
-    }
-  };
-
-  React.useEffect(() => {
-    fetchConnectedPlatforms();
-  }, [user]);
 
   const handleImageSelect = (url: string) => {
     setSelectedImages(prev => [...prev, url]);
@@ -188,48 +153,34 @@ export const DraftEditor: React.FC<DraftEditorProps> = ({
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {platforms.map((platform) => {
-                const isConnected = connectedPlatforms.includes(platform.id);
-                return (
-                  <div
-                    key={platform.id}
-                    className="bg-white rounded-xl p-6 shadow-sm relative group"
-                  >
-                    <div className="absolute top-4 right-4">
-                      <span className={`px-3 py-1 rounded-full text-sm ${
-                        isConnected 
-                          ? 'bg-green-100 text-green-600' 
-                          : 'bg-red-100 text-red-600'
-                      }`}>
-                        {isConnected ? 'Connected' : 'Not Connected'}
-                      </span>
-                    </div>
-
-                    <div className="h-20 flex items-center justify-center mb-4">
-                      <img 
-                        src={platform.image} 
-                        alt={platform.name}
-                        className="max-h-full max-w-full object-contain"
-                      />
-                    </div>
-
-                    <h3 className="text-lg font-semibold text-indigo-900 text-center mb-4">
-                      {platform.name}
-                    </h3>
-
-                    <button
-                      onClick={() => {
-                        setSelectedPlatform(platform.id);
-                        setShowPreview(true);
-                      }}
-                      disabled={!isConnected}
-                      className="w-full py-2 bg-gradient-to-r from-indigo-500 to-pink-500 text-white rounded-lg hover:from-indigo-600 hover:to-pink-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Preview
-                    </button>
+              {platforms.map((platform) => (
+                <div
+                  key={platform.id}
+                  className="bg-white rounded-xl p-6 shadow-sm relative group"
+                >
+                  <div className="h-20 flex items-center justify-center mb-4">
+                    <img 
+                      src={platform.image} 
+                      alt={platform.name}
+                      className="max-h-full max-w-full object-contain"
+                    />
                   </div>
-                );
-              })}
+
+                  <h3 className="text-lg font-semibold text-indigo-900 text-center mb-4">
+                    {platform.name}
+                  </h3>
+
+                  <button
+                    onClick={() => {
+                      setSelectedPlatform(platform.id);
+                      setShowPreview(true);
+                    }}
+                    className="w-full py-2 bg-gradient-to-r from-indigo-500 to-pink-500 text-white rounded-lg hover:from-indigo-600 hover:to-pink-600 transition-colors"
+                  >
+                    Preview
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
         </div>

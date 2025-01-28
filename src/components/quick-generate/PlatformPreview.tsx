@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { FiHeart, FiMessageCircle, FiRepeat, FiShare2, FiThumbsUp, FiFile, FiArrowUp, FiArrowDown, FiBookmark } from 'react-icons/fi';
+import { FiHeart, FiMessageCircle, FiRepeat, FiShare2, FiThumbsUp, FiFile, FiArrowUp, FiArrowDown, FiBookmark, FiMoreHorizontal } from 'react-icons/fi';
 import { PreviewPlatformContent } from '../../utils/previewFormatter';
 
 interface PlatformPreviewProps {
@@ -386,6 +386,106 @@ export const PlatformPreview: React.FC<PlatformPreviewProps> = ({
     </div>
   );
 
+  const renderInstagramPreview = () => (
+    <div className="bg-white rounded-xl shadow-lg overflow-hidden max-w-xl">
+      {/* Header */}
+      <div className="p-3 flex items-center justify-between border-b">
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 rounded-full p-[2px]">
+            <div className="w-full h-full bg-white rounded-full flex items-center justify-center">
+              <div className="w-7 h-7 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                {companyName.charAt(0)}
+              </div>
+            </div>
+          </div>
+          <span className="font-semibold text-sm">{companyName}</span>
+        </div>
+        <button className="text-gray-600">
+          <FiMoreHorizontal className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* Media */}
+      <div className="relative bg-black">
+        {video ? (
+          <video 
+            src={video} 
+            className="w-full aspect-square object-cover" 
+            controls
+          />
+        ) : image ? (
+          <img 
+            src={image} 
+            alt="Post" 
+            className="w-full aspect-square object-cover"
+          />
+        ) : (
+          <div className="w-full aspect-square bg-gray-100 flex items-center justify-center">
+            <span className="text-gray-400">No Media</span>
+          </div>
+        )}
+      </div>
+
+      {/* Actions */}
+      <div className="p-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <button className="hover:text-gray-600">
+              <FiHeart className="w-7 h-7" />
+            </button>
+            <button className="hover:text-gray-600">
+              <FiMessageCircle className="w-7 h-7" />
+            </button>
+            <button className="hover:text-gray-600">
+              <FiShare2 className="w-7 h-7" />
+            </button>
+          </div>
+          <button className="hover:text-gray-600">
+            <FiBookmark className="w-7 h-7" />
+          </button>
+        </div>
+
+        {/* Likes */}
+        <div className="mt-2">
+          <span className="font-semibold text-sm">1,234 likes</span>
+        </div>
+
+        {/* Caption */}
+        <div className="mt-1 text-sm">
+          <span className="font-semibold mr-2">{companyName}</span>
+          <span>{content}</span>
+        </div>
+
+        {/* Comments */}
+        <button className="mt-1 text-gray-500 text-sm">
+          View all 48 comments
+        </button>
+
+        {/* Timestamp */}
+        <div className="mt-1 text-xs text-gray-500">
+          2 HOURS AGO
+        </div>
+      </div>
+
+      {/* Comment input */}
+      <div className="p-3 border-t">
+        <div className="flex items-center space-x-3">
+          <button className="text-gray-600">
+            <span className="text-xl">😊</span>
+          </button>
+          <input
+            type="text"
+            placeholder="Add a comment..."
+            className="flex-1 text-sm outline-none"
+          />
+          <button className="text-blue-500 font-semibold text-sm opacity-50">
+            Post
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
   switch (platform.toLowerCase()) {
     case 'twitter':
       return renderTwitterPreview();
@@ -403,6 +503,8 @@ export const PlatformPreview: React.FC<PlatformPreviewProps> = ({
       return renderTikTokPreview();
     case 'telegram':
       return renderTelegramPreview();
+    case 'instagram':
+      return renderInstagramPreview();
     default:
       return null;
   }
