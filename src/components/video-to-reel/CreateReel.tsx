@@ -3,6 +3,7 @@ import { FiType, FiClock, FiHash, FiGlobe, FiLayout, FiMessageCircle, FiEdit } f
 import axios from 'axios';
 import { ReelResults } from './ReelResults';
 import Cookies from 'js-cookie';
+import { Video } from '../../types/trends';
 
 interface CreateReelProps {
   projectName: string;
@@ -15,17 +16,6 @@ interface CreateReelProps {
   keywords: string;
   onBack: () => void;
   onGenerate: (projectId: number) => void;
-}
-
-interface Video {
-  viralScore: string;
-  relatedTopic: string;
-  transcript: string;
-  videoUrl: string;
-  videoMsDuration: number;
-  videoId: number;
-  title: string;
-  viralReason: string;
 }
 
 // Language mapping based on the documentation
@@ -164,9 +154,9 @@ export const CreateReel: React.FC<CreateReelProps> = ({
   };
 
   const pollProjectStatus = async (projectId: number, attempt = 1) => {
-    const maxAttempts = 100; // Maximum number of polling attempts
-    const baseDelay = 3000; // Start with 3 seconds
-    const maxDelay = 15000; // Maximum delay of 15 seconds
+    const maxAttempts = 100;
+    const baseDelay = 3000;
+    const maxDelay = 15000;
   
     try {
       const jwtToken = Cookies.get('jwt_token');
@@ -180,14 +170,23 @@ export const CreateReel: React.FC<CreateReelProps> = ({
             'Authorization': `Bearer ${jwtToken}`,
             'Content-Type': 'application/json'
           },
-          timeout: 30000
+          timeout: 100000
         });
       
       if (response.data.code === 2000 && response.data.videos) {
-        setVideos(response.data.videos);
+        // Transform the API response to match the Video interface
+        const transformedVideos: Video[] = response.data.videos.map((video: any) => ({
+          ...video,
+          viralScore: video.viralScore || null,
+          relatedTopic: video.relatedTopic ? video.relatedTopic.split(',').map((t: string) => t.trim()) : null,
+          transcript: video.transcript || null,
+          title: video.title || null,
+          viralReason: video.viralReason || null
+        }));
+        
+        setVideos(transformedVideos);
         setIsGenerating(false);
       } else if (attempt < maxAttempts) {
-        // Calculate delay with exponential backoff
         const delay = Math.min(baseDelay * Math.pow(1.5, attempt - 1), maxDelay);
         console.log(`Polling attempt ${attempt} failed, retrying in ${delay}ms`);
         setTimeout(() => pollProjectStatus(projectId, attempt + 1), delay);

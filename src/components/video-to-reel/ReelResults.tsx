@@ -1,16 +1,6 @@
     import React from 'react';
     import { FiThumbsUp } from 'react-icons/fi';
-
-    interface Video {
-    viralScore: string;
-    relatedTopic: string;
-    transcript: string;
-    videoUrl: string;
-    videoMsDuration: number;
-    videoId: number;
-    title: string;
-    viralReason: string;
-    }
+    import { Video } from '../../types/trends';
 
     interface ReelResultsProps {
     videos: Video[];
@@ -20,10 +10,6 @@
     export const ReelResults: React.FC<ReelResultsProps> = ({ videos }) => {
     const [selectedVideo, setSelectedVideo] = React.useState(videos[0]);
 
-    const getTopics = (topicString: string): string[] => {
-        return topicString.split(',').map(topic => topic.trim());
-    };
-
     const handleExport = async () => {
         try {
         const response = await fetch(selectedVideo.videoUrl);
@@ -31,7 +17,7 @@
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${selectedVideo.title}.mp4`;
+        a.download = `${selectedVideo.title || 'video'}.mp4`;
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
@@ -109,38 +95,48 @@
             {/* Right Sidebar - Scrollable */}
             <div className="overflow-y-auto h-full pl-2">
             <div className="space-y-6">
+                {selectedVideo.title && (
                 <div className="bg-white rounded-lg p-4 shadow-sm">
-                <h2 className="text-xl font-semibold mb-4 text-gray-800">{selectedVideo.title}</h2>
-                <div className="flex items-center space-x-2 mb-4">
-                    <div className="text-purple-600">
-                    ✦ Viral Score
+                    <h2 className="text-xl font-semibold mb-4 text-gray-800">{selectedVideo.title}</h2>
+                    {selectedVideo.viralScore && (
+                    <div className="flex items-center space-x-2 mb-4">
+                        <div className="text-purple-600">
+                        ✦ Viral Score
+                        </div>
+                        <div className="text-2xl font-bold bg-gradient-to-r from-indigo-500 to-pink-500 bg-clip-text text-transparent">
+                        {selectedVideo.viralScore}<span className="text-sm text-gray-400">/10</span>
+                        </div>
                     </div>
-                    <div className="text-2xl font-bold bg-gradient-to-r from-indigo-500 to-pink-500 bg-clip-text text-transparent">
-                    {selectedVideo.viralScore}<span className="text-sm text-gray-400">/10</span>
+                    )}
+                    {selectedVideo.viralReason && (
+                    <div className="text-sm text-gray-600">
+                        {selectedVideo.viralReason}
                     </div>
+                    )}
                 </div>
-                <div className="text-sm text-gray-600">
-                    {selectedVideo.viralReason}
-                </div>
-                </div>
+                )}
 
+                {selectedVideo.relatedTopic && selectedVideo.relatedTopic.length > 0 && (
                 <div className="bg-white rounded-lg p-4 shadow-sm">
-                <h3 className="font-semibold mb-2 text-gray-800">Related topic</h3>
-                <div className="flex flex-wrap gap-2">
-                    {getTopics(selectedVideo.relatedTopic).map((tag) => (
-                    <span key={tag} className="px-3 py-1 bg-gray-50 rounded-full text-sm text-gray-600">
+                    <h3 className="font-semibold mb-2 text-gray-800">Related topic</h3>
+                    <div className="flex flex-wrap gap-2">
+                    {selectedVideo.relatedTopic.map((tag) => (
+                        <span key={tag} className="px-3 py-1 bg-gray-50 rounded-full text-sm text-gray-600">
                         {tag}
-                    </span>
+                        </span>
                     ))}
+                    </div>
                 </div>
-                </div>
+                )}
 
+                {selectedVideo.transcript && (
                 <div className="bg-white rounded-lg p-4 shadow-sm">
-                <h3 className="font-semibold mb-2 text-gray-800">Transcript</h3>
-                <p className="text-sm text-gray-600">
+                    <h3 className="font-semibold mb-2 text-gray-800">Transcript</h3>
+                    <p className="text-sm text-gray-600">
                     {selectedVideo.transcript}
-                </p>
+                    </p>
                 </div>
+                )}
             </div>
             </div>
         </div>

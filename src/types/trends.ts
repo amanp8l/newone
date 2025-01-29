@@ -11,3 +11,14 @@ export interface Trend {
   thumbnail?: string;
   videoUrl?: string;
 }
+
+export interface Video {
+  viralScore: string | null;
+  relatedTopic: string[] | null;
+  transcript: string | null;
+  videoUrl: string;
+  videoMsDuration: number;
+  videoId: number;
+  title: string | null;
+  viralReason: string | null;
+}
