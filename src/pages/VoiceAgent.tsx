@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { SampleCalls } from '../components/voice-agent/SampleCalls';
 import { OutboundCall } from '../components/voice-agent/OutboundCall';
-import { InboundCall } from '../components/voice-agent/InboundCall';
+import  ContactCard  from '../components/voice-agent/InboundCall';
 
 type Tab = 'sample' | 'outbound' | 'inbound';
 
@@ -62,7 +62,7 @@ export const VoiceAgent: React.FC = () => {
         >
           {activeTab === 'sample' && <SampleCalls />}
           {activeTab === 'outbound' && <OutboundCall />}
-          {activeTab === 'inbound' && <InboundCall />}
+          {activeTab === 'inbound' && <ContactCard />}
         </motion.div>
       </div>
     </div>

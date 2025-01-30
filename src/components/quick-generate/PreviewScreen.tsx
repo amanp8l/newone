@@ -70,7 +70,7 @@ const BrandSelectorModal: React.FC<BrandSelectorModalProps> = ({ onClose, onSele
 
         {eligibleBrands.length === 0 ? (
           <p className="text-center text-indigo-600 py-4">
-            No brands found with {platform} connected. Please connect a brand first.
+            No brands have been connected to {platform} yet. Please connect {platform} to a brand before proceeding.
           </p>
         ) : (
           <div className="space-y-2">
