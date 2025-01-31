@@ -2,7 +2,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 
 const API_BASE_URL = 'https://kimchi-new.yellowpond-c706b9da.westus2.azurecontainerapps.io/api';
-const POLLING_INTERVAL = 10 * 60 * 1000; // 19 minutes in milliseconds
+const POLLING_INTERVAL = 10 * 60 * 1000; // 10 minutes in milliseconds
 let pollingInterval: NodeJS.Timeout | null = null;
 
 // Store refresh token in memory (consider more secure storage in production)
@@ -51,7 +51,6 @@ const startTokenPolling = (refreshToken: string) => {
       }
     } catch (error) {
       console.error('Failed to poll for new JWT token:', error);
-      // Handle polling failure (e.g., force logout if refresh fails)
       stopTokenPolling();
       logout();
     }
@@ -93,7 +92,7 @@ export const login = async (email: string, password: string) => {
       logo: response.data.logo || null
     };
 
-    return { ...response.data, userData, jwt_token: jwtToken };
+    return { success: true, userData, jwt_token: jwtToken };
   } catch (error: any) {
     throw new Error(error.response?.data?.message || 'Login failed');
   }
@@ -116,26 +115,18 @@ export const signup = async (email: string, password: string, company: string) =
       throw new Error('Invalid response from server');
     }
 
-    // Get initial JWT token and start polling
-    const jwtToken = await pollRefreshToken(response.data.refresh_token);
-    startTokenPolling(response.data.refresh_token);
-
-    // Include email and company in userData
-    const userData = {
-      email: response.data.user_email,
-      company,
-      logo: null
+    // Return success without starting token polling
+    return { 
+      success: true, 
+      message: 'Signup successful. Please login to continue.',
+      shouldRedirectToLogin: true
     };
-
-    return { ...response.data, userData, jwt_token: jwtToken };
   } catch (error: any) {
     throw new Error(error.response?.data?.message || 'Signup failed');
   }
 };
 
 export const logout = () => {
-  // Stop the token polling
   stopTokenPolling();
-  // Remove JWT token from cookies on logout
   Cookies.remove('jwt_token');
 };
