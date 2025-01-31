@@ -1,9 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiMail, FiLock, FiBriefcase, FiArrowRight, FiLoader } from 'react-icons/fi';
+import { FiMail, FiLock, FiBriefcase, FiArrowRight, FiLoader, FiCheck, FiX } from 'react-icons/fi';
 import { login, signup } from '../services/api';
 import { useAuthStore } from '../store/authStore';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+
+interface NotificationProps {
+  type: 'success' | 'error';
+  message: string;
+}
+
+const Notification: React.FC<NotificationProps> = ({ type, message }) => (
+  <motion.div
+    initial={{ opacity: 0, y: -20 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -20 }}
+    className="fixed top-6 right-6 bg-white rounded-xl shadow-lg p-4 z-50 flex items-center space-x-3 border border-indigo-100"
+  >
+    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+      type === 'success' 
+        ? 'bg-gradient-to-br from-indigo-500 to-pink-500'
+        : 'bg-red-500'
+    }`}>
+      {type === 'success' ? (
+        <FiCheck className="w-5 h-5 text-white" />
+      ) : (
+        <FiX className="w-5 h-5 text-white" />
+      )}
+    </div>
+    <p className="text-indigo-900">{message}</p>
+  </motion.div>
+);
 
 export const Auth: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -12,6 +39,7 @@ export const Auth: React.FC = () => {
   const [company, setCompany] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null);
   
   const navigate = useNavigate();
   const { setAuth, isAuthenticated } = useAuthStore();
@@ -21,6 +49,15 @@ export const Auth: React.FC = () => {
       navigate('/');
     }
   }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => {
+        setNotification(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,13 +73,25 @@ export const Auth: React.FC = () => {
         }
       } else {
         const response = await signup(email, password, company);
-        if (response && response.userData) {
-          setAuth(true, response.userData);
-          navigate('/');
+        if (response.success) {
+          setNotification({
+            type: 'success',
+            message: 'Account created successfully! Please login to continue.'
+          });
+          setTimeout(() => {
+            setIsLogin(true);
+            setEmail('');
+            setPassword('');
+            setCompany('');
+          }, 1000);
         }
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred');
+      setNotification({
+        type: 'error',
+        message: err.message || 'An error occurred'
+      });
     } finally {
       setLoading(false);
     }
@@ -50,6 +99,10 @@ export const Auth: React.FC = () => {
 
   return (
     <div className="min-h-screen flex">
+      <AnimatePresence>
+        {notification && <Notification type={notification.type} message={notification.message} />}
+      </AnimatePresence>
+
       <div className="flex-1 flex items-center justify-center p-8 bg-gradient-to-br from-indigo-50 to-pink-50">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
