@@ -1,10 +1,12 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FiHome, FiZap, FiPieChart, FiCalendar, FiBriefcase, FiHelpCircle, FiShare2, FiTrendingUp, FiVideo, FiMic } from 'react-icons/fi';
+import { FiVideo, FiHome, FiZap, FiPieChart, FiCalendar, FiBriefcase, FiHelpCircle, FiShare2, FiTrendingUp, FiMic } from 'react-icons/fi';
+import { useThemeStore } from '../store/themeStore';
 
 export const Sidebar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isDark } = useThemeStore();
 
   const menuItems = [
     { icon: <FiHome />, text: "Home", path: "/" },
@@ -28,7 +30,7 @@ export const Sidebar: React.FC = () => {
   };
 
   return (
-    <div className="w-64 bg-white shadow-xl flex flex-col">
+    <div className={`w-64 ${isDark ? 'bg-gray-900' : 'bg-white'} shadow-xl flex flex-col`}>
       <div className="p-6">
         <div className="flex items-center space-x-2">
           <div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-blue-500 flex items-center justify-center">
@@ -46,8 +48,12 @@ export const Sidebar: React.FC = () => {
               onClick={() => handleNavigation(item.path)}
               className={`flex items-center space-x-3 w-full px-4 py-3 transition-colors ${
                 location.pathname === item.path
-                  ? 'bg-gradient-to-r from-indigo-500/10 to-pink-500/10 text-indigo-600'
-                  : 'hover:bg-gradient-to-r hover:from-indigo-500/5 hover:to-pink-500/5 text-indigo-600/80 hover:text-indigo-600'
+                  ? isDark 
+                    ? 'bg-gray-800 text-indigo-400'
+                    : 'bg-gradient-to-r from-indigo-500/10 to-pink-500/10 text-indigo-600'
+                  : isDark
+                    ? 'text-gray-400 hover:bg-gray-800 hover:text-indigo-400'
+                    : 'hover:bg-gradient-to-r hover:from-indigo-500/5 hover:to-pink-500/5 text-indigo-600/80 hover:text-indigo-600'
               }`}
             >
               {item.icon}
