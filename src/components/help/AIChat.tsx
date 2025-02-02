@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FiSend, FiBook, FiArrowRight, FiArrowLeft } from 'react-icons/fi';
+import { useThemeStore } from '../../store/themeStore';
 
 interface Message {
   type: 'user' | 'ai';
@@ -13,6 +14,7 @@ interface Prompt {
 }
 
 export const AIChat: React.FC = () => {
+  const { isDark } = useThemeStore();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [showPrompts, setShowPrompts] = useState(true);
@@ -24,7 +26,7 @@ export const AIChat: React.FC = () => {
       description: "Learn the basics of using SocialHub",
       query: "How do I get started with SocialHub?"
     },
-    {
+     {
       title: "Content Creation",
       description: "Learn about content creation features",
       query: "How do I create content using SocialHub?"
@@ -122,14 +124,14 @@ Would you like specific information about any particular feature?`;
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+      <div className={`flex-1 overflow-y-auto p-6 space-y-4 ${isDark ? 'text-gray-300' : ''}`}>
         {messages.length === 0 && showPrompts ? (
           <div className="space-y-6">
             <div className="text-center">
               <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent mb-3">
                 How can I help you today?
               </h2>
-              <p className="text-indigo-600/80 text-lg">
+              <p className={`text-lg ${isDark ? 'text-indigo-600/80' : 'text-indigo-600/80'}`}>
                 Choose a topic below or ask your own question
               </p>
             </div>
@@ -139,13 +141,17 @@ Would you like specific information about any particular feature?`;
                 <button
                   key={index}
                   onClick={() => handleSend(prompt.query)}
-                  className="text-left p-4 rounded-xl bg-gradient-to-r from-indigo-50 to-pink-50 hover:from-indigo-100 hover:to-pink-100 transition-colors group border border-transparent hover:border-indigo-200"
+                  className={`text-left p-4 rounded-xl ${
+                    isDark 
+                      ? 'bg-gray-700 hover:bg-gray-600 border-gray-600'
+                      : 'bg-gradient-to-r from-indigo-50 to-pink-50 hover:from-indigo-100 hover:to-pink-100 border-transparent hover:border-indigo-200'
+                  } transition-colors group border`}
                 >
-                  <h3 className="font-semibold text-indigo-900 mb-1 flex items-center justify-between">
+                  <h3 className={`font-semibold mb-1 flex items-center justify-between ${isDark ? 'text-gray-100' : 'text-indigo-900'}`}>
                     {prompt.title}
                     <FiArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transform translate-x-0 group-hover:translate-x-1 transition-all" />
                   </h3>
-                  <p className="text-sm text-indigo-600/80">{prompt.description}</p>
+                  <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-indigo-600/80'}`}>{prompt.description}</p>
                 </button>
               ))}
             </div>
@@ -158,7 +164,7 @@ Would you like specific information about any particular feature?`;
                   setMessages([]);
                   setShowPrompts(true);
                 }}
-                className="flex items-center space-x-2 text-indigo-600 hover:text-indigo-700 mb-4"
+                className={`flex items-center space-x-2 ${isDark ? 'text-indigo-600 hover:text-indigo-700' : 'text-indigo-600 hover:text-indigo-700'} mb-4`}
               >
                 <FiArrowLeft className="w-4 h-4" />
                 <span>Back to Topics</span>
@@ -174,7 +180,9 @@ Would you like specific information about any particular feature?`;
                     className={`max-w-[80%] rounded-xl p-4 ${
                       message.type === 'user'
                         ? 'bg-gradient-to-r from-indigo-500 to-pink-500 text-white'
-                        : 'bg-gradient-to-r from-indigo-50 to-pink-50 text-indigo-900'
+                        : isDark 
+                          ? 'bg-gray-700 text-gray-100'
+                          : 'bg-gradient-to-r from-indigo-50 to-pink-50 text-indigo-900'
                     }`}
                   >
                     <p className="whitespace-pre-wrap">{message.content}</p>
@@ -186,7 +194,7 @@ Would you like specific information about any particular feature?`;
         )}
       </div>
 
-      <div className="border-t border-indigo-100 p-6">
+      <div className={`border-t ${isDark ? 'border-gray-700' : 'border-indigo-100'} p-6`}>
         <div className="relative">
           <div className="flex space-x-4">
             <div className="relative flex-1">
@@ -196,11 +204,19 @@ Would you like specific information about any particular feature?`;
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                 placeholder="Ask me anything about SocialHub..."
-                className="w-full rounded-xl border border-indigo-200 pl-4 pr-12 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className={`w-full rounded-xl border ${
+                  isDark 
+                    ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400'
+                    : 'border-indigo-200 focus:ring-indigo-500'
+                } pl-4 pr-12 py-3 focus:outline-none focus:ring-2`}
               />
               <button
                 onClick={() => setShowPromptLibrary(!showPromptLibrary)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-indigo-50 rounded-lg transition-colors text-indigo-600"
+                className={`absolute right-3 top-1/2 -translate-y-1/2 p-1.5 ${
+                  isDark 
+                    ? 'hover:bg-gray-600'
+                    : 'hover:bg-indigo-50'
+                } rounded-lg transition-colors ${isDark ? 'text-gray-300' : 'text-indigo-600'}`}
                 title="Select Topic"
               >
                 <FiBook className="w-5 h-5" />
@@ -215,15 +231,23 @@ Would you like specific information about any particular feature?`;
           </div>
 
           {showPromptLibrary && (
-            <div className="absolute bottom-full mb-2 left-0 w-full bg-white rounded-xl shadow-lg border border-indigo-100 max-h-60 overflow-y-auto">
+            <div className={`absolute bottom-full mb-2 left-0 w-full ${
+              isDark ? 'bg-gray-800' : 'bg-white'
+            } rounded-xl shadow-lg border ${
+              isDark ? 'border-gray-700' : 'border-indigo-100'
+            } max-h-60 overflow-y-auto`}>
               {prompts.map((prompt, index) => (
                 <button
                   key={index}
                   onClick={() => handleSend(prompt.query)}
-                  className="w-full text-left px-4 py-3 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 transition-colors border-b border-indigo-50 last:border-0"
+                  className={`w-full text-left px-4 py-3 ${
+                    isDark 
+                      ? 'hover:bg-gray-700 border-gray-700'
+                      : 'hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 border-indigo-50'
+                  } transition-colors border-b last:border-0`}
                 >
-                  <h4 className="font-medium text-indigo-900">{prompt.title}</h4>
-                  <p className="text-sm text-indigo-600/80">{prompt.description}</p>
+                  <h4 className={`font-medium ${isDark ? 'text-gray-100' : 'text-indigo-900'}`}>{prompt.title}</h4>
+                  <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-indigo-600/80'}`}>{prompt.description}</p>
                 </button>
               ))}
             </div>

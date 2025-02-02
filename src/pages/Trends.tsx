@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { TrendCard } from '../components/trends/TrendCard';
 import { TrendAnalysis } from '../components/trends/TrendAnalysis';
 import { trends } from '../data/trends';
+import { useThemeStore } from '../store/themeStore';
 
 export const Trends: React.FC = () => {
   const [selectedTrend, setSelectedTrend] = useState<string | null>(null);
+  const { isDark } = useThemeStore();
+
 
   if (selectedTrend) {
     const trend = trends.find(t => t.title === selectedTrend);
@@ -19,7 +22,7 @@ export const Trends: React.FC = () => {
           <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent mb-2">
             Trending Campaigns
           </h1>
-          <p className="text-indigo-600">
+          <p className={`${isDark ? 'text-gray-300' : 'text-indigo-600'} mb-8`}>
             Analyze and learn from the most successful advertising campaigns
           </p>
         </div>
